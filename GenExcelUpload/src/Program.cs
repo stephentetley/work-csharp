@@ -1,5 +1,7 @@
 ﻿
 using System.CommandLine;
+using DocumentFormat.OpenXml.Wordprocessing;
+using DuckDB.NET.Data;
 
 namespace SptUtils.GenExcelUpload {
 
@@ -22,7 +24,7 @@ namespace SptUtils.GenExcelUpload {
                 },
                 new Option<string>("--output_xlsx_file")
                 {
-                    Description = "Output file positional format string (applied to batch number)",
+                    Description = "Output file format string (C#) applied to batch number",
                     Required = true
                 },
                 new Option<string>("--excel_uploader_output_type")
@@ -32,7 +34,7 @@ namespace SptUtils.GenExcelUpload {
                 },
                 new Option<string>("--title")
                 {
-                    Description = "Change request title positional format string (applied to batch number and date.today())",
+                    Description = "Change request title positional (SQL/DuckDb) format string applied to batch number and date.today()",
                     Required = true
                 },
             };
@@ -50,27 +52,21 @@ namespace SptUtils.GenExcelUpload {
                 Console.WriteLine($"{excelUploaderOutputType}");
                 Console.WriteLine($"{title}");
 
-                var flocMake = new FlocCreate("conn");
+                // TODO validate databaseFile
+                string connstr = $"DataSource = {databaseFile};ACCESS_MODE=READ_WRITE;";
+                using var conn = new DuckDBConnection(connstr);
+                conn.Open();
+
+                var flocMake = new FlocCreate(conn);
                 var str = flocMake.InsertTitleFormatString(title ?? "bad");
+                flocMake.WriteFlocCreateUpload(uploaderTemplateFile ?? "bad", outputXlsxFile ?? "bad");
                 Console.WriteLine($"{str}");
                 return 0;
             });
 
             ParseResult parseResult = rootCommand.Parse(args);
             return parseResult.Invoke();
-
-            // if (parseResult.Errors.Count == 0)
-            // {
-            //     var sourceFile = parseResult.GetValue(fileName);
-            //     Console.WriteLine($"GenExcelUpload {sourceFile}");
-            //     return 0;
-            // }
-            // foreach (ParseError parseError in parseResult.Errors)
-            // {
-            //     Console.Error.WriteLine(parseError.Message);
-            // }
-            // return 1;
-            
+           
         }
     }
 
