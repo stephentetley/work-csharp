@@ -1,5 +1,6 @@
 
-using System.Security.Cryptography;
+using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DuckDB.NET.Data;
 
 namespace SptUtils.GenExcelUpload {
@@ -46,7 +47,30 @@ namespace SptUtils.GenExcelUpload {
         private void GenExcelUpload1(string uploadTemplatePath, string dest, int batch)
         {
             var destination = string.Format(dest, batch.ToString("00"));
-            Console.WriteLine($"Output file: {destination}");
+            File.Copy(uploadTemplatePath, destination, true);
+            string queryHeader = 
+                $"""
+                SELECT 
+                    t."Change Request",
+                    format(t."Change Request Description", {batch}, strftime(today(), '%d.%m.%y')) AS "Change Request Description",
+                    t."Priority",
+                    t."Due Date",
+                FROM excel_uploader_floc_create.vw_change_request_header t;
+                """;
+            using var wb = new XLWorkbook(destination);
+            var ws = wb.Worksheets.Worksheet("Change Request Header");
+            ws.Unprotect();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = queryHeader;
+            using var reader = cmd.ExecuteReader();
+            var row = 6;
+            while (reader.Read())
+            {
+                ws.Cell(row, "B").Value = reader.GetString(1);
+                row++;
+            };
+            wb.Save();
+            Console.WriteLine($"Wrote: {destination}");
         }
     }
 }
