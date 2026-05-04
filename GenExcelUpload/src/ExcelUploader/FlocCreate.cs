@@ -48,7 +48,12 @@ namespace SptUtils.GenExcelUpload {
         {
             var destination = string.Format(dest, batch.ToString("00"));
             File.Copy(uploadTemplatePath, destination, true);
-            string queryHeader = 
+            
+            using var wb = new XLWorkbook(destination);
+            using var cmd = conn.CreateCommand();
+            
+            // "Change Request Header" tab
+            string query = 
                 $"""
                 SELECT 
                     t."Change Request",
@@ -57,16 +62,55 @@ namespace SptUtils.GenExcelUpload {
                     t."Due Date",
                 FROM excel_uploader_floc_create.vw_change_request_header t;
                 """;
-            using var wb = new XLWorkbook(destination);
+            
             var ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = queryHeader;
-            using var reader = cmd.ExecuteReader();
+            cmd.CommandText = query;
+            using var reader1 = cmd.ExecuteReader();
             var row = 6;
-            while (reader.Read())
+            while (reader1.Read())
             {
-                ws.Cell(row, "B").Value = reader.GetString(1);
+                ws.Cell(row, "A").Value = reader1.IsDBNull(0) ? "" : reader1.GetString(0);
+                ws.Cell(row, "B").Value = reader1.IsDBNull(1) ? "" : reader1.GetString(1) ?? "";
+                row++;
+            };
+
+            // "Change Request Notes" tab
+            query = 
+                $"""
+                SELECT 
+                    t.usmd_note
+                FROM excel_uploader_floc_create.change_request_notes t;
+                """;
+            ws = wb.Worksheets.Worksheet("Change Request Header");
+            ws.Unprotect();
+            cmd.CommandText = query;
+            var reader2 = cmd.ExecuteReader();
+            row = 5;
+            while (reader2.Read())
+            {
+                ws.Cell(row, "A").Value = reader2.IsDBNull(0) ? "" : reader2.GetString(0);
+                row++;
+            };
+
+            // "FLOC-Functional Location" tab
+            query = $"""
+                SELECT 
+                    t."Functional Location",
+                    t."Description"
+                FROM excel_uploader_floc_create.vw_functional_location t
+                WHERE batch_number = {batch}
+                ORDER BY t."Functional Location";
+                """;
+            ws = wb.Worksheets.Worksheet("FLOC-Functional Location");
+            ws.Unprotect();
+            cmd.CommandText = query;
+            var reader3 = cmd.ExecuteReader();
+            row = 6;
+            while (reader3.Read())
+            {
+                ws.Cell(row, "A").Value = reader3.IsDBNull(0) ? "" : reader3.GetString(0);
+                ws.Cell(row, "B").Value = reader3.IsDBNull(1) ? "" : reader3.GetString(1);
                 row++;
             };
             wb.Save();
