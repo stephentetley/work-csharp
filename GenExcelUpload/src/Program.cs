@@ -70,11 +70,23 @@ namespace SptUtils.GenExcelUpload {
                 using var conn = new DuckDBConnection(connstr);
                 conn.Open();
 
-                var flocMake = new FlocCreate(conn);
-                var str = flocMake.InsertTitleFormatString(title ?? "bad");
-                flocMake.WriteFlocCreateUpload(uploaderTemplateFile ?? "bad", outputXlsxFile ?? "bad");
-                Console.WriteLine($"{str}");
-                return 0;
+                switch (excelUploaderOutputType)
+                {
+                    case "floc_create":
+                        var flocMake = new FlocCreate(conn);
+                        flocMake.InsertTitleFormatString(title ?? "bad");
+                        flocMake.WriteFlocCreateUpload(uploaderTemplateFile ?? "bad", outputXlsxFile ?? "bad");
+                        return 0;
+                    
+                    case "equi_create":
+                        var equiMake = new EquiCreate(conn);
+                        equiMake.InsertTitleFormatString(title ?? "bad");
+                        equiMake.WriteEquiCreateUpload(uploaderTemplateFile ?? "bad", outputXlsxFile ?? "bad");
+                        return 0;
+                    
+                    default:
+                        return 1;
+                }
             });
 
             ParseResult parseResult = rootCommand.Parse(args);

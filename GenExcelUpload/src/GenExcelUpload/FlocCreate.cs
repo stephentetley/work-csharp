@@ -46,7 +46,6 @@ namespace SptUtils.GenExcelUpload {
 
         public void WriteFlocCreateUpload(string uploadTemplatePath, string dest)
         {
-                // rs = con.execute("SELECT max(batch_number) FROM excel_uploader_floc_create.batch_worklist;").fetchone();
             using var cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT max(batch_number) FROM excel_uploader_floc_create.batch_worklist;";
             int maxBatchNum = Convert.ToInt32(cmd.ExecuteScalar());
@@ -75,7 +74,6 @@ namespace SptUtils.GenExcelUpload {
                     t."Due Date",
                 FROM excel_uploader_floc_create.vw_change_request_header t;
                 """;
-            
             var ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();
             cmd.CommandText = query;
