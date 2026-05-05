@@ -70,8 +70,10 @@ namespace SptUtils.GenExcelUpload {
             var row = 6;
             while (reader1.Read())
             {
-                ws.Cell(row, "A").Value = reader1.IsDBNull(0) ? "" : reader1.GetString(0);
-                ws.Cell(row, "B").Value = reader1.IsDBNull(1) ? "" : reader1.GetString(1) ?? "";
+                if (!reader1.IsDBNull(0)) ws.Cell(row, "A").Value = reader1.GetString(0);   // Change Request
+                if (!reader1.IsDBNull(1)) ws.Cell(row, "B").Value = reader1.GetString(1);   // Change Request Description
+                if (!reader1.IsDBNull(2)) ws.Cell(row, "C").Value = reader1.GetString(2);   // Priority
+                if (!reader1.IsDBNull(3)) ws.Cell(row, "D").Value = reader1.GetString(3);   // Due Date
                 row++;
             };
 
@@ -89,7 +91,7 @@ namespace SptUtils.GenExcelUpload {
             row = 5;
             while (reader2.Read())
             {
-                ws.Cell(row, "A").Value = reader2.IsDBNull(0) ? "" : reader2.GetString(0);
+                if (!reader2.IsDBNull(0)) ws.Cell(row, "A").Value = reader2.GetString(0);   // usmd_note
                 row++;
             };
 
@@ -241,8 +243,32 @@ namespace SptUtils.GenExcelUpload {
                 if (!reader3.IsDBNull(65)) ws.Cell(row, "BN").Value = reader3.GetString(65);   // Sales Group
                 row++;
             };
+
+            // 'FLOC-Classification' tab
+            query = 
+                $"""
+                SELECT 
+                    t."Functional Location",
+                    t."Class",
+                    t."Characteristics",
+                    t."Char Value",
+                FROM excel_uploader_floc_create.vw_classification t
+                WHERE t.batch_number = {batch};
+                """;
+            ws = wb.Worksheets.Worksheet("FLOC-Classification");
+            ws.Unprotect();
+            cmd.CommandText = query;
+            var reader4 = cmd.ExecuteReader();
+            row = 5;
+            while (reader4.Read())
+            {
+                if (!reader4.IsDBNull(0)) ws.Cell(row, "A").Value = reader4.GetString(0);   // Functional Location
+                if (!reader4.IsDBNull(1)) ws.Cell(row, "B").Value = reader4.GetString(1);   // Class
+                if (!reader4.IsDBNull(2)) ws.Cell(row, "C").Value = reader4.GetString(2);   // Characteristics
+                if (!reader4.IsDBNull(3)) ws.Cell(row, "D").Value = reader4.GetString(3);   // Char Value
+                row++;
+            };
             wb.Save();
-            Console.WriteLine($"Wrote: {destination}");
         }
     }
 }
