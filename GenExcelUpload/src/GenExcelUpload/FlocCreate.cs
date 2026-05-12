@@ -16,8 +16,8 @@
 using ClosedXML.Excel;
 using DuckDB.NET.Data;
 
-namespace SptUtils.GenExcelUpload {
-
+namespace SptUtils.GenExcelUpload
+{
 
     public class FlocCreate
     {

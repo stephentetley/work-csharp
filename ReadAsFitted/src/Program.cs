@@ -16,7 +16,8 @@
 using System.CommandLine;
 using ClosedXML.Excel;
 
-namespace SptUtils.ReadAsFitted {
+namespace SptUtils.ReadAsFitted 
+{
 
     class Program
     {
@@ -37,13 +38,14 @@ namespace SptUtils.ReadAsFitted {
                 if (File.Exists(asFitted))
                 {
                     using var workbook = new XLWorkbook(asFitted);
+                    var fileName = Path.GetFileName(asFitted);
                     foreach(var worksheet in workbook.Worksheets)
                     {
-                        var reader = new ReadTestSheet(worksheet);
+                        var reader = new ReadTestSheet(fileName, worksheet);
 
-                        Console.WriteLine("Sheet: " + worksheet.Name + " " + reader.isTestSheet());
                         if (reader.isTestSheet())
                         {
+                            Console.WriteLine("Sheet: " + worksheet.Name + " " + reader.isTestSheet());
                             reader.readTest();
                         }
                     } 

@@ -16,7 +16,8 @@
 using System.CommandLine;
 using DuckDB.NET.Data;
 
-namespace SptUtils.GenExcelUpload {
+namespace SptUtils.GenExcelUpload
+{
 
     class Program
     {
@@ -51,9 +52,9 @@ namespace SptUtils.GenExcelUpload {
                     Required = true
                 },
             };
-            rootCommand.SetAction(parseResult =>
-            {
-                string? uploaderTemplateFile = parseResult.GetValue<string>("--uploader_template_file");
+                rootCommand.SetAction(parseResult =>
+                {
+                    string? uploaderTemplateFile = parseResult.GetValue<string>("--uploader_template_file");
                 string? databaseFile = parseResult.GetValue<string>("--database_file");
                 string? outputXlsxFile = parseResult.GetValue<string>("--output_xlsx_file");
                 string? excelUploaderOutputType = parseResult.GetValue<string>("--excel_uploader_output_type");

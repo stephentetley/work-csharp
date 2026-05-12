@@ -10,17 +10,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Net.WebSockets;
 using ClosedXML.Excel;
 
-namespace SptUtils.ReadAsFitted {
+namespace SptUtils.ReadAsFitted 
+{
 
     public class ReadTestSheet
     {
         IXLWorksheet sheet;
+        string fileName;
 
-        public ReadTestSheet(IXLWorksheet ws)
+        public ReadTestSheet(string xlsxName, IXLWorksheet ws)
         {
             sheet = ws;
+            fileName = xlsxName;
         }
 
         public bool isTestSheet()
@@ -32,20 +36,68 @@ namespace SptUtils.ReadAsFitted {
 
         public void readTest()
         {
-            readHeaders();
+            var header = readHeader();
+            var test1 = readCircuit("C", header);
+            Console.WriteLine(test1);
         }
 
-        private void readHeaders()
+        private TestHeader readHeader()
         {
+            var tabName = sheet.Name;
             var siteName = sheet.Cell("B3").GetString();
             var dbOrPanelNumber = sheet.Cell("E3").GetString();
-            var date = sheet.Cell("J3").GetString();
+            var testDate = sheet.Cell("J3").GetString();
+            var sheetNumber = sheet.Cell("K3").GetString();
+            var aibRef = sheet.Cell("B5").GetString();
+            var location = sheet.Cell("B5").GetString();
 
-            Console.WriteLine(siteName);
-            Console.WriteLine(dbOrPanelNumber);
-            Console.WriteLine(date);
+            return new TestHeader
+            (
+                FileName: fileName, 
+                TabName: tabName, 
+                SiteName: siteName, 
+                DbOrPanelNumber: dbOrPanelNumber, 
+                TestDate: testDate, 
+                SheetNumber: sheetNumber, 
+                AibRef: aibRef, 
+                Location: location
+            );
         }
 
+        // columns ["C" .. "K"]
+        private AsFittedCircuit? readCircuit(string col, TestHeader header)
+        {
+            var cableNum = sheet.Cell(10, col).GetString();
+            var fedFrom = sheet.Cell(11, col).GetString();
+            var circuitRefAndPhase = sheet.Cell(12, col).GetString();
+            var circuitDescription = sheet.Cell(13, col).GetString();
+            var circuitType = sheet.Cell(14, col).GetString();
+
+            if (cableNum == "" && fedFrom == "" && circuitRefAndPhase == "")
+            {
+                return null;
+            } 
+            else
+            {
+                return new AsFittedCircuit
+                (
+                    FileName: header.FileName, 
+                    TabName: header.TabName, 
+                    SiteName: header.SiteName,
+                    DbOrPanelNumber: header.DbOrPanelNumber, 
+                    TestDate: header.TestDate, 
+                    SheetNumber: header.SheetNumber, 
+                    AibRef: header.AibRef,
+                    Location: header.Location, 
+                    CableNum: cableNum, 
+                    FedFrom: fedFrom, 
+                    CircuitRefAndPhase: circuitRefAndPhase,
+                    CircuitDescription: circuitDescription,
+                    CircuitType: circuitType
+                );
+            }
+        }
 
     }
 }
+
