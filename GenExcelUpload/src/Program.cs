@@ -85,6 +85,7 @@ namespace SptUtils.GenExcelUpload {
                         return 0;
                     
                     default:
+                        Console.WriteLine($"Unrecognized excel_uploader_output_type: {excelUploaderOutputType}");
                         return 1;
                 }
             });
