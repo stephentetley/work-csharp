@@ -28,13 +28,19 @@ namespace SptUtils.ReadAsFitted
             {
                 new Option<string>("--as_fitted_file")
                 {
-                    Description = "Path to Ass Fitted xlsx file",
+                    Description = "Path to As Fitted xlsx file",
                     Required = true
                 },
+                new Option<string>("--output_json_file")
+                {
+                    Description = "Path to output file (json)",
+                    Required = true
+                },                
             };
             rootCommand.SetAction(parseResult =>
             {
                 string? asFitted = parseResult.GetValue<string>("--as_fitted_file");
+                string? outputJsonFile = parseResult.GetValue<string>("--output_json_file");
                 if (File.Exists(asFitted))
                 {
                     using var workbook = new XLWorkbook(asFitted);

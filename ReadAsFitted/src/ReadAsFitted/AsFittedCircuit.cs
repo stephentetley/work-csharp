@@ -12,6 +12,8 @@
 
 
 
+using System.Text.Json;
+
 namespace SptUtils.ReadAsFitted 
 {
     public record AsFittedCircuit
@@ -29,6 +31,15 @@ namespace SptUtils.ReadAsFitted
         string CircuitRefAndPhase,
         string CircuitDescription,
         string CircuitType
-    );
+    )
+    {
+        public void WriteJson(Utf8JsonWriter writer)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("file_name", FileName);
+            writer.WriteString("sheet_name", TabName);
+            writer.WriteEndObject();
+        }
+    };
     
 }
