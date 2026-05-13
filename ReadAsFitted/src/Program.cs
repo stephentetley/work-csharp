@@ -16,6 +16,7 @@
 using System.CommandLine;
 using System.Text.Json;
 using ClosedXML.Excel;
+using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace SptUtils.ReadAsFitted 
 {
@@ -27,36 +28,54 @@ namespace SptUtils.ReadAsFitted
 
             RootCommand rootCommand = new("ReadAsFitted") 
             {
-                new Option<string>("--as_fitted_file")
+                new Option<string>("--as_fitted_folder")
                 {
-                    Description = "Path to As Fitted xlsx file",
+                    Description = "Path to folder with As Fitted xlsx files",
                     Required = true
-                },
-                new Option<string>("--output_json_file")
-                {
-                    Description = "Path to output file (json)",
-                    Required = true
-                },                
+                },              
             };
             rootCommand.SetAction(parseResult =>
             {
-                string? asFitted = parseResult.GetValue<string>("--as_fitted_file");
-                string? outputJsonFile = parseResult.GetValue<string>("--output_json_file");
-                return ProcessWorkbook(asFitted, outputJsonFile);
+                string? asFittedFolder = parseResult.GetValue<string>("--as_fitted_folder");
+                return ProcessWorkbooks(asFittedFolder);
             });
             ParseResult parseResult = rootCommand.Parse(args);
             return parseResult.Invoke();
         }
 
-        private static int ProcessWorkbook(string? asFitted, string? outputJsonFile)
+        private static int ProcessWorkbooks(string? asFittedFolder)
         {
-            if (File.Exists(asFitted) && outputJsonFile != null)
+            if (Directory.Exists(asFittedFolder)) {
+                int ans = 0;
+                Matcher matcher = new();
+                matcher.AddInclude("*.xlsx");
+                Console.WriteLine("Source: " + asFittedFolder);
+
+                var matchingFiles = matcher.GetResultsInFullPath(asFittedFolder);
+                foreach (var asFitted in matchingFiles)
+                {
+                    var res = ProcessWorkbook(asFitted);
+                    ans += res;
+                }
+                return (ans > 1) ? 1 : 0;
+            } 
+            else
             {
+                return 1;
+            }
+
+        }
+
+        private static int ProcessWorkbook(string? asFittedPath)
+        {
+            if (File.Exists(asFittedPath))
+            {
+                var outputJsonFile = Path.ChangeExtension(asFittedPath, ".json");
                 var options = new JsonWriterOptions { Indented = true };
-                using var workbook = new XLWorkbook(asFitted);
+                using var workbook = new XLWorkbook(asFittedPath);
                 using var stream = File.Create(outputJsonFile);
                 using var writer = new Utf8JsonWriter(stream, options);
-                var fileName = Path.GetFileName(asFitted);
+                var fileName = Path.GetFileName(asFittedPath);
                 writer.WriteStartArray();
                 foreach (var worksheet in workbook.Worksheets)
                 {
@@ -69,8 +88,8 @@ namespace SptUtils.ReadAsFitted
                         foreach(var test in tests) test.WriteJson(writer);
                     }
                 }
-                Console.WriteLine("Source: " + asFitted);
                 writer.WriteEndArray();
+                Console.WriteLine("Wrote: " + outputJsonFile);
                 return 0;
             } else {
                     Console.WriteLine("Invalid arguments");
