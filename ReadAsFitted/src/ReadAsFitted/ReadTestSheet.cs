@@ -16,29 +16,28 @@ using ClosedXML.Excel;
 namespace SptUtils.ReadAsFitted 
 {
 
-    public class ReadTestSheet
+    public class ReadTestSheet(string xlsxName, IXLWorksheet ws)
     {
-        IXLWorksheet sheet;
-        string fileName;
+        IXLWorksheet sheet = ws;
+        string fileName = xlsxName;
 
-        public ReadTestSheet(string xlsxName, IXLWorksheet ws)
-        {
-            sheet = ws;
-            fileName = xlsxName;
-        }
-
-        public bool isTestSheet()
+        public bool IsTestSheet()
         {
             var value = sheet.Cell("F1").GetString();
             return (value == "TEST SHEET");
 
         }
 
-        public void readTest()
+        public List<AsFittedCircuit> ParseTestSheet()
         {
+            var circuits = new List<AsFittedCircuit>();
+            string[] columns = { "C", "D", "E", "F", "G", "H", "I", "J", "K"};
             var header = readHeader();
-            var test1 = readCircuit("C", header);
-            Console.WriteLine(test1);
+            foreach (var column in columns) {
+                var test = readCircuit(column, header);
+                if (test != null) circuits.Add(test);
+            }
+            return circuits;
         }
 
         private TestHeader readHeader()
@@ -70,9 +69,7 @@ namespace SptUtils.ReadAsFitted
             var cableNum = sheet.Cell(10, col).GetString();
             var fedFrom = sheet.Cell(11, col).GetString();
             var circuitRefAndPhase = sheet.Cell(12, col).GetString();
-            var circuitDescription = sheet.Cell(13, col).GetString();
-            var circuitType = sheet.Cell(14, col).GetString();
-
+            
             if (cableNum == "" && fedFrom == "" && circuitRefAndPhase == "")
             {
                 return null;
@@ -85,15 +82,30 @@ namespace SptUtils.ReadAsFitted
                     TabName: header.TabName, 
                     SiteName: header.SiteName,
                     DbOrPanelNumber: header.DbOrPanelNumber, 
-                    TestDate: header.TestDate, 
+                    HeaderTestDate: header.TestDate, 
                     SheetNumber: header.SheetNumber, 
                     AibRef: header.AibRef,
                     Location: header.Location, 
                     CableNum: cableNum, 
                     FedFrom: fedFrom, 
                     CircuitRefAndPhase: circuitRefAndPhase,
-                    CircuitDescription: circuitDescription,
-                    CircuitType: circuitType
+                    CircuitDescription: sheet.Cell(13, col).GetString(),
+                    CircuitType: sheet.Cell(14, col).GetString(),
+                    CableType: sheet.Cell(15, col).GetString(),
+                    InstallationMethod: sheet.Cell(16, col).GetString(), 
+                    CableLength: sheet.Cell(17, col).GetString(),
+                    NumOfCoresCSA: sheet.Cell(18, col).GetString(),
+                    CircuitBreakerOrFuseRating: sheet.Cell(26, col).GetString(),
+                    CircuitBreakerBSAndTypeNum: sheet.Cell(27, col).GetString(),
+                    CircuitBreakerManufacturerAndRefNum: sheet.Cell(28, col).GetString(),
+                    RCDManufacturerAndType: sheet.Cell(31, col).GetString(),
+                    Load: sheet.Cell(34, col).GetString(),
+                    RatingKW: sheet.Cell(35, col).GetString(),
+                    FullLoadCurrentA: sheet.Cell(36, col).GetString(),
+                    CircuitVoltageV: sheet.Cell(58, col).GetString(),
+                    CircuitCurrentA: sheet.Cell(59, col).GetString(),
+                    TestDate: sheet.Cell(60, col).GetString(),
+                    Comments: sheet.Cell(61, col).GetString()
                 );
             }
         }

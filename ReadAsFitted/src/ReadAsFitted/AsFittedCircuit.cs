@@ -22,7 +22,7 @@ namespace SptUtils.ReadAsFitted
         string TabName,
         string SiteName,
         string DbOrPanelNumber,
-        string TestDate,
+        string HeaderTestDate,
         string SheetNumber,
         string AibRef,
         string Location,
@@ -30,7 +30,22 @@ namespace SptUtils.ReadAsFitted
         string FedFrom,
         string CircuitRefAndPhase,
         string CircuitDescription,
-        string CircuitType
+        string CircuitType,
+        string CableType,
+        string InstallationMethod,
+        string CableLength,
+        string NumOfCoresCSA,
+        string CircuitBreakerOrFuseRating,
+        string CircuitBreakerBSAndTypeNum,
+        string CircuitBreakerManufacturerAndRefNum,
+        string RCDManufacturerAndType,
+        string Load,
+        string RatingKW,
+        string FullLoadCurrentA,
+        string CircuitVoltageV,
+        string CircuitCurrentA,
+        string TestDate,
+        string Comments
     )
     {
         public void WriteJson(Utf8JsonWriter writer)
@@ -38,6 +53,32 @@ namespace SptUtils.ReadAsFitted
             writer.WriteStartObject();
             writer.WriteString("file_name", FileName);
             writer.WriteString("sheet_name", TabName);
+            writer.WriteString("site_name", SiteName);
+            writer.WriteString("db_or_panel_number", DbOrPanelNumber);
+            writer.WriteString("header_test_date", HeaderTestDate);
+            writer.WriteString("sheet_number", SheetNumber);
+            writer.WriteString("aib_ref", AibRef);
+            writer.WriteString("location", Location);
+            writer.WriteString("cable_num", CableNum);
+            writer.WriteString("fed_from", FedFrom);
+            writer.WriteString("circuit_ref_and_phase", CircuitRefAndPhase);
+            writer.WriteString("circuit_description", CircuitDescription);
+            writer.WriteString("circuit_type", CircuitType);
+            writer.WriteString("cable_type", CableType);
+            writer.WriteString("installation_method", InstallationMethod);
+            writer.WriteString("cable_length", CableLength);
+            writer.WriteString("num_of_cores_csa", NumOfCoresCSA);
+            writer.WriteString("circuit_breaker_or_fuse_rating", CircuitBreakerOrFuseRating);
+            writer.WriteString("circuit_breaker_bs_and_type_num", CircuitBreakerBSAndTypeNum);
+            writer.WriteString("circuit_breaker_manufacturer_and_ref_num", CircuitBreakerManufacturerAndRefNum);
+            writer.WriteString("rcd_manufacturer_and_type", RCDManufacturerAndType);
+            writer.WriteString("load", Load);
+            writer.WriteString("rating_kw", RatingKW);
+            writer.WriteString("full_load_current_a", FullLoadCurrentA);
+            writer.WriteString("circuit_voltage_v", CircuitVoltageV);
+            writer.WriteString("circuit_current_a", CircuitCurrentA);
+            writer.WriteString("test_date", TestDate);
+            writer.WriteString("comments", Comments);
             writer.WriteEndObject();
         }
     };

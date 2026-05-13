@@ -14,6 +14,7 @@
 
 
 using System.CommandLine;
+using System.Text.Json;
 using ClosedXML.Excel;
 
 namespace SptUtils.ReadAsFitted 
@@ -41,31 +42,42 @@ namespace SptUtils.ReadAsFitted
             {
                 string? asFitted = parseResult.GetValue<string>("--as_fitted_file");
                 string? outputJsonFile = parseResult.GetValue<string>("--output_json_file");
-                if (File.Exists(asFitted))
-                {
-                    using var workbook = new XLWorkbook(asFitted);
-                    var fileName = Path.GetFileName(asFitted);
-                    foreach(var worksheet in workbook.Worksheets)
-                    {
-                        var reader = new ReadTestSheet(fileName, worksheet);
-
-                        if (reader.isTestSheet())
-                        {
-                            Console.WriteLine("Sheet: " + worksheet.Name + " " + reader.isTestSheet());
-                            reader.readTest();
-                        }
-                    } 
-
-                    Console.WriteLine("Source: " + asFitted);
-                    return 0;
-                } else {
-                    Console.WriteLine("Invalid arguments");
-                    return 1;
-                }
+                return ProcessWorkbook(asFitted, outputJsonFile);
             });
             ParseResult parseResult = rootCommand.Parse(args);
             return parseResult.Invoke();
         }
+
+        private static int ProcessWorkbook(string? asFitted, string? outputJsonFile)
+        {
+            if (File.Exists(asFitted) && outputJsonFile != null)
+            {
+                var options = new JsonWriterOptions { Indented = true };
+                using var workbook = new XLWorkbook(asFitted);
+                using var stream = File.Create(outputJsonFile);
+                using var writer = new Utf8JsonWriter(stream, options);
+                var fileName = Path.GetFileName(asFitted);
+                writer.WriteStartArray();
+                foreach (var worksheet in workbook.Worksheets)
+                {
+                    var reader = new ReadTestSheet(fileName, worksheet);
+
+                    if (reader.IsTestSheet())
+                    {
+                        Console.WriteLine("Sheet: " + worksheet.Name + " " + reader.IsTestSheet());
+                        var tests = reader.ParseTestSheet();
+                        foreach(var test in tests) test.WriteJson(writer);
+                    }
+                }
+                Console.WriteLine("Source: " + asFitted);
+                writer.WriteEndArray();
+                return 0;
+            } else {
+                    Console.WriteLine("Invalid arguments");
+                    return 1;
+            }
+        }
     }
 }
+
 
