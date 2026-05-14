@@ -48,7 +48,7 @@ namespace SptUtils.ReadAsFitted
             var testDate = sheet.Cell("J3").GetString();
             var sheetNumber = sheet.Cell("K3").GetString();
             var aibRef = sheet.Cell("B5").GetString();
-            var location = sheet.Cell("B5").GetString();
+            var location = sheet.Cell("F5").GetString();
 
             return new TestHeader
             (
