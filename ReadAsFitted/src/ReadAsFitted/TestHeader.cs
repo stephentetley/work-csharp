@@ -23,7 +23,9 @@ namespace SptUtils.ReadAsFitted
         string TestDate,
         string SheetNumber,
         string AibRef,
-        string Location
+        string TpOrSp,
+        string Location,
+        string DbOrPanelIncomerDetails
     );
     
 }

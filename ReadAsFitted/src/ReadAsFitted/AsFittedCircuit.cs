@@ -25,7 +25,9 @@ namespace SptUtils.ReadAsFitted
         string HeaderTestDate,
         string SheetNumber,
         string AibRef,
+        string TpOrSp,
         string Location,
+        string DbOrPanelIncomerDetails,
         string CableNum,
         string FedFrom,
         string CircuitRefAndPhase,
@@ -58,7 +60,9 @@ namespace SptUtils.ReadAsFitted
             writer.WriteString("header_test_date", HeaderTestDate);
             writer.WriteString("sheet_number", SheetNumber);
             writer.WriteString("aib_ref", AibRef);
+            writer.WriteString("tp_or_sp", TpOrSp);
             writer.WriteString("location", Location);
+            writer.WriteString("db_or_panel_incomer_details", DbOrPanelIncomerDetails);
             writer.WriteString("cable_num", CableNum);
             writer.WriteString("fed_from", FedFrom);
             writer.WriteString("circuit_ref_and_phase", CircuitRefAndPhase);

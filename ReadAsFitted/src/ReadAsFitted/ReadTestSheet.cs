@@ -32,7 +32,7 @@ namespace SptUtils.ReadAsFitted
         {
             var circuits = new List<AsFittedCircuit>();
             string[] columns = { "C", "D", "E", "F", "G", "H", "I", "J", "K"};
-            var header = readHeader();
+            var header = ReadHeader();
             foreach (var column in columns) {
                 var test = readCircuit(column, header);
                 if (test != null) circuits.Add(test);
@@ -40,7 +40,7 @@ namespace SptUtils.ReadAsFitted
             return circuits;
         }
 
-        private TestHeader readHeader()
+        private TestHeader ReadHeader()
         {
             var tabName = sheet.Name;
             var siteName = sheet.Cell("B3").GetString();
@@ -48,7 +48,9 @@ namespace SptUtils.ReadAsFitted
             var testDate = sheet.Cell("J3").GetString();
             var sheetNumber = sheet.Cell("K3").GetString();
             var aibRef = sheet.Cell("B5").GetString();
+            var tpOrSp = sheet.Cell("E5").GetString();
             var location = sheet.Cell("F5").GetString();
+            var dbOrPanelIncomerDetails = sheet.Cell("B7").GetString();
 
             return new TestHeader
             (
@@ -59,7 +61,9 @@ namespace SptUtils.ReadAsFitted
                 TestDate: testDate, 
                 SheetNumber: sheetNumber, 
                 AibRef: aibRef, 
-                Location: location
+                TpOrSp: tpOrSp,
+                Location: location,
+                DbOrPanelIncomerDetails: dbOrPanelIncomerDetails
             );
         }
 
@@ -85,7 +89,9 @@ namespace SptUtils.ReadAsFitted
                     HeaderTestDate: header.TestDate, 
                     SheetNumber: header.SheetNumber, 
                     AibRef: header.AibRef,
+                    TpOrSp: header.TpOrSp,
                     Location: header.Location, 
+                    DbOrPanelIncomerDetails: header.DbOrPanelIncomerDetails,
                     CableNum: cableNum, 
                     FedFrom: fedFrom, 
                     CircuitRefAndPhase: circuitRefAndPhase,
