@@ -12,7 +12,6 @@
 
 
 using ClosedXML.Excel;
-using SixLabors.Fonts;
 
 namespace SptUtils.ReadAsFitted 
 {
