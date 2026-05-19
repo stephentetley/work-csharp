@@ -48,8 +48,10 @@ namespace SptUtils.ReadAsFitted
             var testDate = sheet.Cell("J3").GetString();
             var sheetNumber = sheet.Cell("K3").GetString();
             var aibRef = sheet.Cell("B5").GetString();
-            var tpOrSp = sheet.Cell("E5").GetString();
-            var location = sheet.Cell("F5").GetString();
+            var hasTpOrSp = sheet.Cell("E4").GetString() == "TP / SP";
+            var tpOrSp = hasTpOrSp ? sheet.Cell("E5").GetString() : "";
+            var locationCell = hasTpOrSp ? "F5" : "E5";
+            var location = hasTpOrSp ? sheet.Cell(locationCell).GetString() : sheet.Cell("E5").GetString();
             var dbOrPanelIncomerDetails = sheet.Cell("B7").GetString();
 
             return new TestHeader
