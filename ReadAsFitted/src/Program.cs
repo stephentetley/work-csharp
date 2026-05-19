@@ -80,14 +80,11 @@ namespace SptUtils.ReadAsFitted
                 writer.WriteStartArray();
                 foreach (var worksheet in workbook.Worksheets)
                 {
-                    var reader = new ReadTestSheet(fileName, worksheet);
-
-                    if (reader.IsTestSheet())
-                    {
-                        Console.WriteLine("Sheet: " + worksheet.Name + " " + reader.IsTestSheet());
-                        var tests = reader.ParseTestSheet(checklistDate);
-                        foreach(var test in tests) test.WriteJson(writer);
-                    }
+                    
+                    var tests = ReadTestSheet.ParseTestSheet(fileName, checklistDate, worksheet);
+                    if (tests.Count > 0) Console.WriteLine("Sheet: " + worksheet.Name);
+                    foreach(var test in tests) test.WriteJson(writer);
+                    
                 }
                 writer.WriteEndArray();
                 Console.WriteLine("Wrote: " + outputJsonFile);

@@ -28,9 +28,9 @@ namespace SptUtils.ReadDistBoardSchedule
 
         }
 
-        public List<AsFittedCircuit> ParseTestSheet()
+        public List<DbSchedule> ParseTestSheet()
         {
-            var circuits = new List<AsFittedCircuit>();
+            var circuits = new List<DbSchedule>();
             string[] columns = { "C", "D", "E", "F", "G", "H", "I", "J", "K"};
             var header = ReadHeader();
             foreach (var column in columns) {
@@ -40,7 +40,7 @@ namespace SptUtils.ReadDistBoardSchedule
             return circuits;
         }
 
-        private TestHeader ReadHeader()
+        private Header ReadHeader()
         {
             var tabName = sheet.Name;
             var siteName = sheet.Cell("B3").GetString();
@@ -52,7 +52,7 @@ namespace SptUtils.ReadDistBoardSchedule
             var location = sheet.Cell("F5").GetString();
             var dbOrPanelIncomerDetails = sheet.Cell("B7").GetString();
 
-            return new TestHeader
+            return new Header
             (
                 FileName: fileName, 
                 TabName: tabName, 
@@ -68,7 +68,7 @@ namespace SptUtils.ReadDistBoardSchedule
         }
 
         // columns ["C" .. "K"]
-        private AsFittedCircuit? readCircuit(string col, TestHeader header)
+        private DbSchedule? ReadSchedule(string col, Header header)
         {
             var cableNum = sheet.Cell(10, col).GetString();
             var fedFrom = sheet.Cell(11, col).GetString();
@@ -80,7 +80,7 @@ namespace SptUtils.ReadDistBoardSchedule
             } 
             else
             {
-                return new AsFittedCircuit
+                return new DbSchedule
                 (
                     FileName: header.FileName, 
                     TabName: header.TabName, 
