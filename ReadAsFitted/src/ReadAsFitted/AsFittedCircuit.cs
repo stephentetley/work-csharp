@@ -20,6 +20,7 @@ namespace SptUtils.ReadAsFitted
     (
         string FileName, 
         string TabName,
+        int ChecklistYear,
         string SiteName,
         string DbOrPanelNumber,
         string HeaderTestDate,
@@ -55,6 +56,7 @@ namespace SptUtils.ReadAsFitted
             writer.WriteStartObject();
             writer.WriteString("file_name", FileName);
             writer.WriteString("sheet_name", TabName);
+            writer.WriteNumber("checklist_year", ChecklistYear);
             writer.WriteString("site_name", SiteName);
             writer.WriteString("db_or_panel_number", DbOrPanelNumber);
             writer.WriteString("header_test_date", HeaderTestDate);

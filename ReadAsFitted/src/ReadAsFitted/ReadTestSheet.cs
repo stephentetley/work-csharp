@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Net.WebSockets;
+
 using ClosedXML.Excel;
 
 namespace SptUtils.ReadAsFitted 
@@ -28,11 +28,11 @@ namespace SptUtils.ReadAsFitted
 
         }
 
-        public List<AsFittedCircuit> ParseTestSheet()
+        public List<AsFittedCircuit> ParseTestSheet(DateOnly? checklistDate)
         {
             var circuits = new List<AsFittedCircuit>();
             string[] columns = { "C", "D", "E", "F", "G", "H", "I", "J", "K"};
-            var header = ReadHeader();
+            var header = ReadHeader(checklistDate);
             foreach (var column in columns) {
                 var test = readCircuit(column, header);
                 if (test != null) circuits.Add(test);
@@ -40,7 +40,7 @@ namespace SptUtils.ReadAsFitted
             return circuits;
         }
 
-        private TestHeader ReadHeader()
+        private TestHeader ReadHeader(DateOnly? checklistDate)
         {
             var tabName = sheet.Name;
             var siteName = sheet.Cell("B3").GetString();
@@ -56,6 +56,7 @@ namespace SptUtils.ReadAsFitted
             (
                 FileName: fileName, 
                 TabName: tabName, 
+                ChecklistDate: checklistDate,
                 SiteName: siteName, 
                 DbOrPanelNumber: dbOrPanelNumber, 
                 TestDate: testDate, 
@@ -84,6 +85,7 @@ namespace SptUtils.ReadAsFitted
                 (
                     FileName: header.FileName, 
                     TabName: header.TabName, 
+                    ChecklistYear: (header.ChecklistDate.HasValue) ? header.ChecklistDate.Value.Year : 1970,
                     SiteName: header.SiteName,
                     DbOrPanelNumber: header.DbOrPanelNumber, 
                     HeaderTestDate: header.TestDate, 

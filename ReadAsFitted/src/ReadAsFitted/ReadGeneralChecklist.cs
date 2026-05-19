@@ -1,0 +1,41 @@
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+
+using ClosedXML.Excel;
+using SixLabors.Fonts;
+
+namespace SptUtils.ReadAsFitted 
+{
+
+    public static class ReadGeneralChecklist
+    {
+
+        public static DateOnly? GetChecklistDate(IXLWorkbook wb)
+        {
+            if (wb.Worksheets.TryGetWorksheet("General Checklist", out IXLWorksheet? ws))
+            {
+                var dateStr = ws.Cell("B8").GetString(); 
+                if (DateTime.TryParse(dateStr, out DateTime dt))
+                {
+                    return DateOnly.FromDateTime(dt);     
+                }
+                else return null;
+            }  
+            else
+            {
+                return null;
+            }
+        }
+
+    }
+}

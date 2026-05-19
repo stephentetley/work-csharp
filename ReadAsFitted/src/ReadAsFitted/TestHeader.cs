@@ -18,6 +18,7 @@ namespace SptUtils.ReadAsFitted
     (
         string FileName, 
         string TabName,
+        DateOnly? ChecklistDate,
         string SiteName,
         string DbOrPanelNumber,
         string TestDate,

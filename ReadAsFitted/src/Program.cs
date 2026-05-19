@@ -76,6 +76,7 @@ namespace SptUtils.ReadAsFitted
                 using var stream = File.Create(outputJsonFile);
                 using var writer = new Utf8JsonWriter(stream, options);
                 var fileName = Path.GetFileName(asFittedPath);
+                var checklistDate = ReadGeneralChecklist.GetChecklistDate(workbook);
                 writer.WriteStartArray();
                 foreach (var worksheet in workbook.Worksheets)
                 {
@@ -84,7 +85,7 @@ namespace SptUtils.ReadAsFitted
                     if (reader.IsTestSheet())
                     {
                         Console.WriteLine("Sheet: " + worksheet.Name + " " + reader.IsTestSheet());
-                        var tests = reader.ParseTestSheet();
+                        var tests = reader.ParseTestSheet(checklistDate);
                         foreach(var test in tests) test.WriteJson(writer);
                     }
                 }
