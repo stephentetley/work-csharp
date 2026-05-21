@@ -28,7 +28,7 @@ namespace SptUtils.ReadDistBoardSchedule
 
         }
 
-        public List<DbSchedule> ParseTestSheet()
+        public DistBoardSchedule ParseTestSheet()
         {
             var circuits = new List<DbSchedule>();
             string[] columns = { "C", "D", "E", "F", "G", "H", "I", "J", "K"};
