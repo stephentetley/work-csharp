@@ -43,12 +43,15 @@ namespace SptUtils.ReadDistBoardSchedule
             if (ProtectiveDeviceA.HasValue) writer.WriteNumber("protective_device_a", ProtectiveDeviceA.Value); else writer.WriteNull("protective_device_a");
             writer.WriteString("phase", Phase);
             if (FaultCurrentkA.HasValue) writer.WriteNumber("fault_current_ka", FaultCurrentkA.Value); else writer.WriteNull("fault_current_ka");
-            writer.WriteStartArray();
-            foreach (var item in Circuits)
-            {
-                item.WriteJson(writer);
-            }
-            writer.WriteEndArray();
+            
+            // TODO do we want nesting or denormalization?    
+            // writer.WritePropertyName("circuits");
+            // writer.WriteStartArray();
+            // foreach (var item in Circuits)
+            // {
+            //     item.WriteJson(writer);
+            // }
+            // writer.WriteEndArray();
             writer.WriteEndObject();
         }
     };
