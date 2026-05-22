@@ -19,53 +19,70 @@ namespace SptUtils.ReadDistBoardSchedule
     public static class ReadSchedule
     {
 
-        public static DistBoardSchedule ParseDBSchedule(string fileName, IXLWorksheet ws)
+        public static List<DistBoardCircuit> ParseDBSchedule(string fileName, IXLWorksheet ws)
         {
-            var projectReference = ws.Cell("E5").GetString();
-            var DbReference = ws.Cell("E7").GetString() + "-" + ws.Cell("F7").GetString();
+            // var projectReference = ws.Cell("E5").GetString();
+            // var dbReference = ws.Cell("E7").GetString() + "-" + ws.Cell("F7").GetString();
 
-            return new DistBoardSchedule
+            // return new DistBoardSchedule
+            // (
+            //     FileName: fileName,
+            //     TabName: ws.Name,
+            //     ProjectReference: projectReference,
+            //     DbReference: dbReference,
+            //     SupplyCableRef: ws.Cell("E14").GetString(),
+            //     NumberOfWays: null,
+            //     FedFrom: "",
+            //     ProtectiveDeviceA: null,
+            //     Phase: "",
+            //     FaultCurrentkA: null,
+            //     Circuits: []
+            // );
+
+            return [];
+        }
+
+        private static CircuitHeader ReadHeader(string fileName, IXLWorksheet ws)
+        {
+            var dbReference = ws.Cell("E7").GetString() + "-" + ws.Cell("F7").GetString();
+            int? getInt(string cellAddr)
+            {
+                if (ws.Cell(cellAddr).TryGetValue<int>(out var cellValue))
+                {
+                    return cellValue;
+                }
+                else
+                {
+                    return null;
+                }
+            };
+            double? getDouble(string cellAddr)
+            {
+                if (ws.Cell(cellAddr).TryGetValue<double>(out var cellValue))
+                {
+                    return cellValue;
+                }
+                else
+                {
+                    return null;
+                }
+            };
+
+            return new CircuitHeader
             (
                 FileName: fileName,
                 TabName: ws.Name,
-                ProjectReference: projectReference,
-                DbReference: DbReference,
+                ProjectReference: ws.Cell("E5").GetString(),
+                DbReference: dbReference,
                 SupplyCableRef: ws.Cell("E14").GetString(),
-                NumberOfWays: null,
-                FedFrom: "",
-                ProtectiveDeviceA: null,
-                Phase: "",
-                FaultCurrentkA: null,
-                Circuits: []
+                NumberOfWays: getInt("E18"),
+                FedFrom: ws.Cell("J14").GetString(),
+                ProtectiveDeviceA: getDouble("J16"),
+                DistBoardPhase: ws.Cell("J18").GetString(),
+                FaultCurrentkA: getDouble("J20")
             );
+
         }
-
-        // private Header ReadHeader()
-        // {
-        //     var tabName = sheet.Name;
-        //     var siteName = sheet.Cell("B3").GetString();
-        //     var dbOrPanelNumber = sheet.Cell("E3").GetString();
-        //     var testDate = sheet.Cell("J3").GetString();
-        //     var sheetNumber = sheet.Cell("K3").GetString();
-        //     var aibRef = sheet.Cell("B5").GetString();
-        //     var tpOrSp = sheet.Cell("E5").GetString();
-        //     var location = sheet.Cell("F5").GetString();
-        //     var dbOrPanelIncomerDetails = sheet.Cell("B7").GetString();
-
-        //     return new Header
-        //     (
-        //         FileName: fileName, 
-        //         TabName: tabName, 
-        //         SiteName: siteName, 
-        //         DbOrPanelNumber: dbOrPanelNumber, 
-        //         TestDate: testDate, 
-        //         SheetNumber: sheetNumber, 
-        //         AibRef: aibRef, 
-        //         TpOrSp: tpOrSp,
-        //         Location: location,
-        //         DbOrPanelIncomerDetails: dbOrPanelIncomerDetails
-        //     );
-        // }
 
         // // columns ["C" .. "K"]
         // private DbSchedule? ReadSchedule(string col, Header header)

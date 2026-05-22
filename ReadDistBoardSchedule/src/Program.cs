@@ -80,9 +80,9 @@ namespace SptUtils.ReadDistBoardSchedule
                 writer.WriteStartArray();
                 foreach (var worksheet in workbook.Worksheets)
                 {
-                    var schedule = ReadSchedule.ParseDBSchedule(fileName, worksheet);
-                    Console.WriteLine("Sheet: " + worksheet.Name);
-                    schedule.WriteJson(writer);
+                    var circuits = ReadSchedule.ParseDBSchedule(fileName, worksheet);
+                    if (circuits.Count > 0) Console.WriteLine("Sheet: " + worksheet.Name);
+                    foreach(var circuit in circuits) circuit.WriteJson(writer);
                 }
                 writer.WriteEndArray();
                 Console.WriteLine("Wrote: " + outputJsonFile);

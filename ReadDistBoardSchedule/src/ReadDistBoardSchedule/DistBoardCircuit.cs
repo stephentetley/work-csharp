@@ -18,6 +18,16 @@ namespace SptUtils.ReadDistBoardSchedule
 {
     public record DistBoardCircuit
     (
+        string FileName, 
+        string TabName,
+        string ProjectReference,
+        string DbReference,
+        string SupplyCableRef,
+        int? NumberOfWays,
+        string FedFrom,
+        double? ProtectiveDeviceA,
+        string DistBoardPhase,
+        double? FaultCurrentkA,        
         int Way, 
         string Phase,
         double? ProtectiveInA,
@@ -30,6 +40,15 @@ namespace SptUtils.ReadDistBoardSchedule
         public void WriteJson(Utf8JsonWriter writer)
         {
             writer.WriteStartObject();
+                        writer.WriteString("file_name", FileName);
+            writer.WriteString("sheet_name", TabName);
+            writer.WriteString("project_reference", ProjectReference);
+            writer.WriteString("db_reference", DbReference);
+            writer.WriteString("supply_cable_reference", SupplyCableRef);
+            if (NumberOfWays.HasValue) writer.WriteNumber("number_of_ways", NumberOfWays.Value); else writer.WriteNull("number_of_ways");
+            if (ProtectiveDeviceA.HasValue) writer.WriteNumber("protective_device_a", ProtectiveDeviceA.Value); else writer.WriteNull("protective_device_a");
+            writer.WriteString("dist_board_phase", DistBoardPhase);
+            if (FaultCurrentkA.HasValue) writer.WriteNumber("fault_current_ka", FaultCurrentkA.Value); else writer.WriteNull("fault_current_ka");
             writer.WriteNumber("way", Way);
             writer.WriteString("phase", Phase);
             if (ProtectiveInA.HasValue) writer.WriteNumber("protective_in_a", ProtectiveInA.Value); else writer.WriteNull("protective_in_a");
