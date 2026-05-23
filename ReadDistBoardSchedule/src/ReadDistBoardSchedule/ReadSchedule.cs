@@ -21,53 +21,61 @@ namespace SptUtils.ReadDistBoardSchedule
 
         public static List<DistBoardCircuit> ParseDBSchedule(string fileName, IXLWorksheet ws)
         {
-            // var projectReference = ws.Cell("E5").GetString();
-            // var dbReference = ws.Cell("E7").GetString() + "-" + ws.Cell("F7").GetString();
+            int getLastRowNumber()
+            {
 
-            // return new DistBoardSchedule
-            // (
-            //     FileName: fileName,
-            //     TabName: ws.Name,
-            //     ProjectReference: projectReference,
-            //     DbReference: dbReference,
-            //     SupplyCableRef: ws.Cell("E14").GetString(),
-            //     NumberOfWays: null,
-            //     FedFrom: "",
-            //     ProtectiveDeviceA: null,
-            //     Phase: "",
-            //     FaultCurrentkA: null,
-            //     Circuits: []
-            // );
+                var lastRowUsed = ws.LastRowUsed();
 
-            return [];
+                return lastRowUsed?.RowNumber() ?? 0;
+            };
+        
+            var header = ReadHeader(fileName, ws);
+            var circuits = new List<DistBoardCircuit>();
+            for (int i = 26; i < getLastRowNumber(); i++)
+            {
+                var row = ws.Row(i);
+                var circuit = ReadCircuit(header, row);
+
+                if (circuit != null)
+                {
+                    circuits.Add(circuit);
+                }
+
+            };
+
+            return circuits;
+
+        }
+        
+        
+        private static int? ReadInt(IXLCell? cell)
+        {
+            if (cell != null && cell.TryGetValue<int>(out var cellValue))
+            {
+                return cellValue;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private static double? ReadDouble(IXLCell? cell)
+        {
+            if (cell != null && cell.TryGetValue<double>(out var cellValue))
+            {
+                return cellValue;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private static CircuitHeader ReadHeader(string fileName, IXLWorksheet ws)
         {
             var dbReference = ws.Cell("E7").GetString() + "-" + ws.Cell("F7").GetString();
-            int? getInt(string cellAddr)
-            {
-                if (ws.Cell(cellAddr).TryGetValue<int>(out var cellValue))
-                {
-                    return cellValue;
-                }
-                else
-                {
-                    return null;
-                }
-            };
-            double? getDouble(string cellAddr)
-            {
-                if (ws.Cell(cellAddr).TryGetValue<double>(out var cellValue))
-                {
-                    return cellValue;
-                }
-                else
-                {
-                    return null;
-                }
-            };
-
+        
             return new CircuitHeader
             (
                 FileName: fileName,
@@ -75,63 +83,48 @@ namespace SptUtils.ReadDistBoardSchedule
                 ProjectReference: ws.Cell("E5").GetString(),
                 DbReference: dbReference,
                 SupplyCableRef: ws.Cell("E14").GetString(),
-                NumberOfWays: getInt("E18"),
+                NumberOfWays: ReadInt(ws.Cell("E18")),
                 FedFrom: ws.Cell("J14").GetString(),
-                ProtectiveDeviceA: getDouble("J16"),
+                ProtectiveDeviceA: ReadDouble(ws.Cell("J16")),
                 DistBoardPhase: ws.Cell("J18").GetString(),
-                FaultCurrentkA: getDouble("J20")
+                FaultCurrentkA: ReadDouble(ws.Cell("J20"))
             );
 
         }
 
-        // // columns ["C" .. "K"]
-        // private DbSchedule? ReadSchedule(string col, Header header)
-        // {
-        //     var cableNum = sheet.Cell(10, col).GetString();
-        //     var fedFrom = sheet.Cell(11, col).GetString();
-        //     var circuitRefAndPhase = sheet.Cell(12, col).GetString();
+        private static DistBoardCircuit? ReadCircuit(CircuitHeader header, IXLRow row)
+        {
+            var way = ReadInt(row.Cell("C"));
+            var phase = row.Cell("C").GetString();
             
-        //     if (cableNum == "" && fedFrom == "" && circuitRefAndPhase == "")
-        //     {
-        //         return null;
-        //     } 
-        //     else
-        //     {
-        //         return new DbSchedule
-        //         (
-        //             FileName: header.FileName, 
-        //             TabName: header.TabName, 
-        //             SiteName: header.SiteName,
-        //             DbOrPanelNumber: header.DbOrPanelNumber, 
-        //             HeaderTestDate: header.TestDate, 
-        //             SheetNumber: header.SheetNumber, 
-        //             AibRef: header.AibRef,
-        //             TpOrSp: header.TpOrSp,
-        //             Location: header.Location, 
-        //             DbOrPanelIncomerDetails: header.DbOrPanelIncomerDetails,
-        //             CableNum: cableNum, 
-        //             FedFrom: fedFrom, 
-        //             CircuitRefAndPhase: circuitRefAndPhase,
-        //             CircuitDescription: sheet.Cell(13, col).GetString(),
-        //             CircuitType: sheet.Cell(14, col).GetString(),
-        //             CableType: sheet.Cell(15, col).GetString(),
-        //             InstallationMethod: sheet.Cell(16, col).GetString(), 
-        //             CableLength: sheet.Cell(17, col).GetString(),
-        //             NumOfCoresCSA: sheet.Cell(18, col).GetString(),
-        //             CircuitBreakerOrFuseRating: sheet.Cell(26, col).GetString(),
-        //             CircuitBreakerBSAndTypeNum: sheet.Cell(27, col).GetString(),
-        //             CircuitBreakerManufacturerAndRefNum: sheet.Cell(28, col).GetString(),
-        //             RCDManufacturerAndType: sheet.Cell(31, col).GetString(),
-        //             Load: sheet.Cell(34, col).GetString(),
-        //             RatingKW: sheet.Cell(35, col).GetString(),
-        //             FullLoadCurrentA: sheet.Cell(36, col).GetString(),
-        //             CircuitVoltageV: sheet.Cell(58, col).GetString(),
-        //             CircuitCurrentA: sheet.Cell(59, col).GetString(),
-        //             TestDate: sheet.Cell(60, col).GetString(),
-        //             Comments: sheet.Cell(61, col).GetString()
-        //         );
-        //     }
-        // }
+            if(way.HasValue && phase != "")
+            {
+                return new DistBoardCircuit
+                (
+                    FileName: header.FileName, 
+                    TabName: header.TabName, 
+                    ProjectReference: header.ProjectReference,
+                    DbReference: header.DbReference,
+                    SupplyCableRef: header.SupplyCableRef,
+                    NumberOfWays: header.NumberOfWays,
+                    FedFrom: header.FedFrom,
+                    ProtectiveDeviceA: header.ProtectiveDeviceA,
+                    DistBoardPhase: header.DistBoardPhase,
+                    FaultCurrentkA: header.FaultCurrentkA,
+                    Way: way.Value,
+                    Phase: phase,
+                    ProtectiveInA: null,
+                    DeviceIrA: null,
+                    RCDmA: null,
+                    ConductorLine: null,
+                    ConductorCPC: null
+                );
+            } 
+            else
+            {
+                return null;
+            }
+        }
 
     }
 }
