@@ -95,8 +95,10 @@ namespace SptUtils.ReadDistBoardSchedule
         private static DistBoardCircuit? ReadCircuit(CircuitHeader header, IXLRow row)
         {
             var way = ReadInt(row.Cell("C"));
-            var phase = row.Cell("C").GetString();
-            
+            var phase = row.Cell("D").GetString();
+            var loadReference = row.Cell("F").GetString();
+            if (loadReference == "") loadReference = row.Cell("G").GetString();
+
             if(way.HasValue && phase != "")
             {
                 return new DistBoardCircuit
@@ -113,11 +115,12 @@ namespace SptUtils.ReadDistBoardSchedule
                     FaultCurrentkA: header.FaultCurrentkA,
                     Way: way.Value,
                     Phase: phase,
-                    ProtectiveInA: null,
-                    DeviceIrA: null,
-                    RCDmA: null,
-                    ConductorLine: null,
-                    ConductorCPC: null
+                    LoadReference: loadReference,
+                    ProtectiveInA: ReadDouble(row.Cell("H")),
+                    DeviceIrA: ReadDouble(row.Cell("I")),
+                    RCDmA: ReadDouble(row.Cell("J")),
+                    ConductorLine: ReadDouble(row.Cell("K")),
+                    ConductorCPC: ReadDouble(row.Cell("L"))
                 );
             } 
             else

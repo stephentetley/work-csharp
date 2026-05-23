@@ -30,6 +30,7 @@ namespace SptUtils.ReadDistBoardSchedule
         double? FaultCurrentkA,        
         int Way, 
         string Phase,
+        string LoadReference,
         double? ProtectiveInA,
         double? DeviceIrA,
         double? RCDmA,
@@ -51,6 +52,7 @@ namespace SptUtils.ReadDistBoardSchedule
             if (FaultCurrentkA.HasValue) writer.WriteNumber("fault_current_ka", FaultCurrentkA.Value); else writer.WriteNull("fault_current_ka");
             writer.WriteNumber("way", Way);
             writer.WriteString("phase", Phase);
+            writer.WriteString("load_reference", LoadReference);
             if (ProtectiveInA.HasValue) writer.WriteNumber("protective_in_a", ProtectiveInA.Value); else writer.WriteNull("protective_in_a");
             if (DeviceIrA.HasValue) writer.WriteNumber("device_ir_a", DeviceIrA.Value); else writer.WriteNull("device_ir_a");
             if (RCDmA.HasValue) writer.WriteNumber("rcd_ma", RCDmA.Value); else writer.WriteNull("rcd_ma");
