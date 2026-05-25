@@ -54,7 +54,7 @@ namespace SptUtils.GenExcelUpload
             File.Copy(uploadTemplatePath, dest, true);
             
             using var wb = new XLWorkbook(dest);
-            using var cmd = conn.CreateCommand();
+            
             
             // "Change Request Header" tab
             string query = 
@@ -63,13 +63,13 @@ namespace SptUtils.GenExcelUpload
                     t.change_request,
                     t.change_request_description,
                     t.priority,
-                    t.due_date,
+                    t.due_date
                 FROM floc_create_change_request_header t;
                 """;
             var ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();
-            cmd.CommandText = query;
-            using var reader1 = cmd.ExecuteReader();
+            using var cmd1 = new SqliteCommand(query, conn);
+            using var reader1 = cmd1.ExecuteReader();
             var row = 6;
             while (reader1.Read())
             {
@@ -89,8 +89,8 @@ namespace SptUtils.GenExcelUpload
                 """;
             ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();
-            cmd.CommandText = query;
-            var reader2 = cmd.ExecuteReader();
+            using var cmd2 = new SqliteCommand(query, conn);
+            var reader2 = cmd2.ExecuteReader();
             row = 5;
             while (reader2.Read())
             {
@@ -166,15 +166,15 @@ namespace SptUtils.GenExcelUpload
                     t.distr_channel,
                     t.division,
                     t.sales_office,
-                    t.sales_group,
+                    t.sales_group
                 FROM floc_create_functional_location t
                 WHERE batch_number = {batch}
                 ORDER BY t.functional_location;
                 """;
             ws = wb.Worksheets.Worksheet("FLOC-Functional Location");
             ws.Unprotect();
-            cmd.CommandText = query;
-            var reader3 = cmd.ExecuteReader();
+            using var cmd3 = new SqliteCommand(query, conn);
+            var reader3 = cmd3.ExecuteReader();
             row = 6;
             while (reader3.Read())
             {
@@ -252,16 +252,16 @@ namespace SptUtils.GenExcelUpload
                 $"""
                 SELECT 
                     t.functional_location,
-                    t,class,
+                    t.class,
                     t.characteristics,
-                    t.char_value,
+                    t.char_value
                 FROM floc_create_classification t
                 WHERE t.batch_number = {batch};
                 """;
             ws = wb.Worksheets.Worksheet("FLOC-Classification");
             ws.Unprotect();
-            cmd.CommandText = query;
-            var reader4 = cmd.ExecuteReader();
+            using var cmd4 = new SqliteCommand(query, conn);
+            var reader4 = cmd4.ExecuteReader();
             row = 5;
             while (reader4.Read())
             {
