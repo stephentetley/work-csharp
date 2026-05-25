@@ -32,71 +32,54 @@ namespace SptUtils.GenExcelUpload
                 .Build();
             
             var appSettings = builder.GetSection("AppSettings").Get<AppSettings>();
-            if (appSettings != null) Console.WriteLine(appSettings.TemplateFolder);
+            if (appSettings != null) Console.WriteLine(appSettings.EquiChangeTemplatePath);
 
             RootCommand rootCommand = new("GenFileUpload") 
             {
-                new Option<string>("--uploader_template_file")
-                {
-                    Description = "Path to Excel Uploader template file",
-                    Required = true
-                },
                 new Option<string>("--database_file")
                 {
-                    Description = "The DuckDB database file",
+                    Description = "The SQLite database file",
                     Required = true
                 },
-                new Option<string>("--output_xlsx_file")
+                new Option<string>("--output_folder")
                 {
-                    Description = "Output file format string (C#) applied to batch number",
+                    Description = "Output foldere for *.xlsx files",
                     Required = true
                 },
-                new Option<string>("--excel_uploader_output_type")
+                new Option<string>("--output_basename")
                 {
-                    Description = "Output type: floc_create, equi_create, equi_change",
-                    Required = true
-                },
-                new Option<string>("--title")
-                {
-                    Description = "Change request title positional (SQL/DuckDb) format string applied to batch number and date.today()",
-                    Required = true
+                    Description = "Base file name for output - the name will be suffixed with the upload format and batch number",
+                    Required = false
                 },
             };
             rootCommand.SetAction(parseResult =>
             {
-                string? uploaderTemplateFile = parseResult.GetValue<string>("--uploader_template_file");
                 string? databaseFile = parseResult.GetValue<string>("--database_file");
-                string? outputXlsxFile = parseResult.GetValue<string>("--output_xlsx_file");
-                string? excelUploaderOutputType = parseResult.GetValue<string>("--excel_uploader_output_type");
-                string? title = parseResult.GetValue<string>("--title");
-                Console.WriteLine($"GenExcelUpload:");
-                Console.WriteLine($"{uploaderTemplateFile}");
-                Console.WriteLine($"{databaseFile}");
-                Console.WriteLine($"{outputXlsxFile}");
-                Console.WriteLine($"{excelUploaderOutputType}");
-                Console.WriteLine($"{title}");
-
-                // TODO validate databaseFile
-                string connstr = $"DataSource = {databaseFile};ACCESS_MODE=READ_WRITE;";
-                using var connection = new SqliteConnection($"Data Source={databaseFile}");
-                connection.Open();
-
-                switch (excelUploaderOutputType)
+                string? outputFolder = parseResult.GetValue<string>("--output_folder");
+                
+                if (databaseFile != null && outputFolder != null)
                 {
-                    case "floc_create":
-                        var flocMake = new FlocCreate(connection);
-                        flocMake.WriteFlocCreateUpload(uploaderTemplateFile ?? "bad", outputXlsxFile ?? "bad");
-                        return 0;
+                    Console.WriteLine($"GenExcelUpload:");
+                    Console.WriteLine($"{databaseFile}");
+                    Console.WriteLine($"{outputFolder}");
                     
-                    case "equi_create":
-                        var equiMake = new EquiCreate(connection);
-                        equiMake.WriteEquiCreateUpload(uploaderTemplateFile ?? "bad", outputXlsxFile ?? "bad");
-                        return 0;
-                    
-                    default:
-                        Console.WriteLine($"Unrecognized excel_uploader_output_type: {excelUploaderOutputType}");
-                        return 1;
+                    // TODO validate databaseFile
+                    string connstr = $"DataSource = {databaseFile};ACCESS_MODE=READ_WRITE;";
+                    using var connection = new SqliteConnection($"Data Source={databaseFile}");
+                    connection.Open();
+
+                    var flocMake = new FlocCreate(connection);
+                    flocMake.WriteFlocCreateUpload(appSettings?.FlocCreateTemplatePath ?? "bad", outputFolder);
+                        
+                    var equiMake = new EquiCreate(connection);
+                    equiMake.WriteEquiCreateUpload(appSettings?.EquiCreateTemplatePath ?? "bad", outputFolder);
+                    return 0;
                 }
+                else
+                {
+                    return 1;
+                }
+                
             });
 
             ParseResult parseResult = rootCommand.Parse(args);

@@ -24,8 +24,7 @@ namespace SptUtils.GenExcelUpload
         {
             using var cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT max(batch_number) FROM floc_create_functional_location;";
-            var maxBatchNum = cmd.ExecuteScalar();
-            if (maxBatchNum is long imaxBatch)
+            if (cmd.ExecuteScalar() is long imaxBatch)
             {
                 for (int i = 1; i <= imaxBatch; i++)
                 {

@@ -25,11 +25,14 @@ namespace SptUtils.GenExcelUpload {
         public void WriteEquiCreateUpload(string uploadTemplatePath, string dest)
         {
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT max(batch_number) FROM excel_uploader_equi_create.batch_worklist;";
-            int maxBatchNum = Convert.ToInt32(cmd.ExecuteScalar());
-            for (int i = 1; i <= maxBatchNum; i++)
+            cmd.CommandText = "SELECT max(batch_number) FROM equi_create_equipment_data;";
+            if (cmd.ExecuteScalar() is long imaxBatch)
             {
-                GenExcelUpload1(uploadTemplatePath, dest, i);
+                for (int i = 1; i <= imaxBatch; i++)
+                {
+                    Console.WriteLine($"Index: {i}");
+                    GenExcelUpload1(uploadTemplatePath, dest, i);
+                }
             }
 
         }
