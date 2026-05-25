@@ -70,6 +70,7 @@ namespace SptUtils.GenExcelUpload
                     var nameRoot = parseResult.GetValue<string>("--output_basename");
                     
                     FlocCreate.WriteFlocCreateUpload(connection, appSettings, outputFolder, nameRoot);
+                    FlocChange.WriteFlocChangeUpload(connection, appSettings, outputFolder, nameRoot);
                     EquiCreate.WriteEquiCreateUpload(connection, appSettings, outputFolder, nameRoot);
                     EquiChange.WriteEquiChangeUpload(connection, appSettings, outputFolder, nameRoot);
                     return 0;
