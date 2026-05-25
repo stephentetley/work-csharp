@@ -14,15 +14,25 @@
 
 
 using System.CommandLine;
-using DuckDB.NET.Data;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Data.Sqlite;
+
 
 namespace SptUtils.GenExcelUpload
 {
 
     class Program
     {
+
         static int Main(string[] args) 
         {
+
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+            
+            var appSettings = builder.GetSection("AppSettings").Get<AppSettings>();
+            if (appSettings != null) Console.WriteLine(appSettings.TemplateFolder);
 
             RootCommand rootCommand = new("GenFileUpload") 
             {
@@ -52,9 +62,9 @@ namespace SptUtils.GenExcelUpload
                     Required = true
                 },
             };
-                rootCommand.SetAction(parseResult =>
-                {
-                    string? uploaderTemplateFile = parseResult.GetValue<string>("--uploader_template_file");
+            rootCommand.SetAction(parseResult =>
+            {
+                string? uploaderTemplateFile = parseResult.GetValue<string>("--uploader_template_file");
                 string? databaseFile = parseResult.GetValue<string>("--database_file");
                 string? outputXlsxFile = parseResult.GetValue<string>("--output_xlsx_file");
                 string? excelUploaderOutputType = parseResult.GetValue<string>("--excel_uploader_output_type");
@@ -68,20 +78,18 @@ namespace SptUtils.GenExcelUpload
 
                 // TODO validate databaseFile
                 string connstr = $"DataSource = {databaseFile};ACCESS_MODE=READ_WRITE;";
-                using var conn = new DuckDBConnection(connstr);
-                conn.Open();
+                using var connection = new SqliteConnection($"Data Source={databaseFile}");
+                connection.Open();
 
                 switch (excelUploaderOutputType)
                 {
                     case "floc_create":
-                        var flocMake = new FlocCreate(conn);
-                        flocMake.InsertTitleFormatString(title ?? "bad");
+                        var flocMake = new FlocCreate(connection);
                         flocMake.WriteFlocCreateUpload(uploaderTemplateFile ?? "bad", outputXlsxFile ?? "bad");
                         return 0;
                     
                     case "equi_create":
-                        var equiMake = new EquiCreate(conn);
-                        equiMake.InsertTitleFormatString(title ?? "bad");
+                        var equiMake = new EquiCreate(connection);
                         equiMake.WriteEquiCreateUpload(uploaderTemplateFile ?? "bad", outputXlsxFile ?? "bad");
                         return 0;
                     

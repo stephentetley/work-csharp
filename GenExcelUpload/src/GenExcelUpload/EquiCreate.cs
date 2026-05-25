@@ -14,35 +14,13 @@
 
 
 using ClosedXML.Excel;
-using DuckDB.NET.Data;
+using Microsoft.Data.Sqlite;
 
 namespace SptUtils.GenExcelUpload {
 
 
-    public class EquiCreate
+    public class EquiCreate(SqliteConnection conn)
     {
-        DuckDBConnection conn;
-
-        public EquiCreate(DuckDBConnection con)
-        {
-            conn = con;    
-        }
-        
-        public int InsertTitleFormatString(string titleFormat) {
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = "DELETE FROM excel_uploader_equi_create.change_request_header";
-            var ans = cmd.ExecuteNonQuery();
-
-            string updateStmt = 
-                $"""
-                INSERT INTO excel_uploader_equi_create.change_request_header BY NAME
-                SELECT '{titleFormat}' AS change_request_decription; 
-                """;
-            cmd.CommandText = updateStmt;
-            ans = cmd.ExecuteNonQuery();
-            return ans;
-        }
-
 
         public void WriteEquiCreateUpload(string uploadTemplatePath, string dest)
         {
@@ -68,11 +46,11 @@ namespace SptUtils.GenExcelUpload {
             string query = 
                 $"""
                 SELECT 
-                    t."Change Request",
-                    format(t."Change Request Description", {batch}, strftime(today(), '%d.%m.%y')) AS "Change Request Description",
-                    t."Priority",
-                    t."Due Date",
-                FROM excel_uploader_equi_create.vw_change_request_header t;
+                    t.Change_Request,
+                    t.change_request_description,
+                    t.priority,
+                    t.due_date,
+                FROM equi_create_change_request_header t;
                 """;
             var ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();
@@ -92,8 +70,8 @@ namespace SptUtils.GenExcelUpload {
             query = 
                 $"""
                 SELECT 
-                    t.usmd_note
-                FROM excel_uploader_equi_create.change_request_notes t;
+                    t.notes,
+                FROM equi_create_change_request_notes t;
                 """;
             ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();

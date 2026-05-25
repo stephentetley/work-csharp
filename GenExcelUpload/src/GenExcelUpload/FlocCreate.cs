@@ -14,48 +14,26 @@
 
 
 using ClosedXML.Excel;
-using DuckDB.NET.Data;
+using Microsoft.Data.Sqlite;
 
 namespace SptUtils.GenExcelUpload
 {
-
-    public class FlocCreate
+    public class FlocCreate(SqliteConnection conn)
     {
-        DuckDBConnection conn;
-
-        public FlocCreate(DuckDBConnection con)
-        {
-            conn = con;    
-        }
-        
-        public int InsertTitleFormatString(string titleFormat) {
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = "DELETE FROM excel_uploader_floc_create.change_request_header";
-            var ans = cmd.ExecuteNonQuery();
-
-            string updateStmt = 
-                $"""
-                INSERT INTO excel_uploader_floc_create.change_request_header BY NAME
-                SELECT '{titleFormat}' AS change_request_decription;
-                """;
-            cmd.CommandText = updateStmt;
-            ans = cmd.ExecuteNonQuery();
-            return ans;
-        }
-
-
         public void WriteFlocCreateUpload(string uploadTemplatePath, string dest)
         {
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT max(batch_number) FROM excel_uploader_floc_create.batch_worklist;";
-            int maxBatchNum = Convert.ToInt32(cmd.ExecuteScalar());
-            for (int i = 1; i <= maxBatchNum; i++)
+            cmd.CommandText = "SELECT max(batch_number) FROM floc_create_functional_location;";
+            var maxBatchNum = cmd.ExecuteScalar();
+            if (maxBatchNum is long imaxBatch)
             {
-                GenExcelUpload1(uploadTemplatePath, dest, i);
+                for (int i = 1; i <= imaxBatch; i++)
+                {
+                    Console.WriteLine($"Index: {i}");
+                    GenExcelUpload1(uploadTemplatePath, dest, i);
+                }
             }
-
         }
-
         private void GenExcelUpload1(string uploadTemplatePath, string dest, int batch)
         {
             var destination = string.Format(dest, batch.ToString("00"));
@@ -68,11 +46,11 @@ namespace SptUtils.GenExcelUpload
             string query = 
                 $"""
                 SELECT 
-                    t."Change Request",
-                    format(t."Change Request Description", {batch}, strftime(today(), '%d.%m.%y')) AS "Change Request Description",
-                    t."Priority",
-                    t."Due Date",
-                FROM excel_uploader_floc_create.vw_change_request_header t;
+                    t.change_request,
+                    t.change_request_description,
+                    t.priority,
+                    t.due_date,
+                FROM floc_create_change_request_header t;
                 """;
             var ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();
@@ -92,8 +70,8 @@ namespace SptUtils.GenExcelUpload
             query = 
                 $"""
                 SELECT 
-                    t.usmd_note
-                FROM excel_uploader_floc_create.change_request_notes t;
+                    t.notes
+                FROM floc_create_change_request_notes t;
                 """;
             ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();
@@ -109,75 +87,75 @@ namespace SptUtils.GenExcelUpload
             // "FLOC-Functional Location" tab
             query = $"""
                 SELECT 
-                    t."Functional Location",
-                    t."Description",
-                    t."FunctLocCat",
-                    t."StrIndicator",
-                    t."Inactive",
-                    t."Object type",
-                    t."AuthorizGroup",
-                    t."Gross Weight",
-                    t."Unit of weight",
-                    t."Inventory no",
-                    t."Size/dimens",
-                    t."Start-up date",
-                    t."AcquisitionValue",
-                    t."Currency",
-                    t."Acquistion date",
-                    t."Manufacturer",
-                    t."Model number",
-                    t."ManufPartNo",
-                    t."ManufSerialNo",
-                    t."ManufCountry",
-                    t."ConstructYear",
-                    t."ConstructMth",
-                    t."MaintPlant",
-                    t."Location", 
-                    t."Room",
-                    t."Plant section",
-                    t."Work center",
-                    t."ABC indic",
-                    t."Sort field",
-                    t."Business Area",
-                    t."Asset",
-                    t."Sub-number",
-                    t."Cost Center",
-                    t."WBS Element",
-                    t."StandgOrder",
-                    t."SettlementOrder",
-                    t."Planning plant",
-                    t."Planner group",
-                    t."Main WorkCtr",
-                    t."Plnt WorkCenter",
-                    t."Catalog profile",
-                    t."SupFunctLoc",
-                    t."Position",
-                    t."Ref. Location",
-                    t."Installation Allowed",
-                    t."Single Inst.",
-                    t."Construction type",
-                    t."Status Profile",
-                    t."User Status",
-                    t."Status of an object",
-                    t."Status without stsno",
-                    t."Begin guarantee(C)",
-                    t."Warranty end(C)",
-                    t."Master Warranty(C)",
-                    t."InheritWarranty(C)",
-                    t."Pass on warranty(C)",
-                    t."Begin guarantee(V)",
-                    t."Warranty end(V)",
-                    t."Master Warranty(V)",
-                    t."InheritWarranty(V)",
-                    t."Pass on warranty(V)",
-                    t."Sales Org",
-                    t."Distr. Channel",
-                    t."Division",
-                    t."Sales Office",
-                    t."Sales Group",                    
-                FROM excel_uploader_floc_create.vw_functional_location t
+                    t.functional_location,
+                    t.floc_description,
+                    t.category,
+                    t.str_indicator,
+                    t.inactive,
+                    t.object_type,
+                    t.authoriz_group,
+                    t.gross_weight,
+                    t.unit_of_weight,
+                    t.inventory_no,
+                    t.size_dimens,
+                    t.start_up_date,
+                    t.acquisition_value,
+                    t.currency,
+                    t.acquistion_date,
+                    t.manufacturer,
+                    t.model_number,
+                    t.manuf_part_no,
+                    t.manuf_serial_no,
+                    t.manuf_country,
+                    t.construct_year,
+                    t.construct_mth,
+                    t.maint_plant,
+                    t.location, 
+                    t.room,
+                    t.plant_section,
+                    t.work_center,
+                    t.abc_indic,
+                    t.sort_field,
+                    t.business_area,
+                    t.asset,
+                    t.sub_number,
+                    t.cost_center,
+                    t.wbs_element,
+                    t.standg_order,
+                    t.settlement_order,
+                    t.planning_plant,
+                    t.planner_group,
+                    t.main_work_ctr,
+                    t.plnt_work_center,
+                    t.catalog_profile,
+                    t.sup_funct_loc,
+                    t.position,
+                    t.ref_location,
+                    t.installation_allowed,
+                    t.single_inst,
+                    t.construction_type,
+                    t.status_profile,
+                    t.user_status,
+                    t.status_of_an_object,
+                    t.status_without_stsno,
+                    t.begin_guarantee_c,
+                    t.warranty_end_c,
+                    t.master_warranty_c,
+                    t.inherit_warranty_c,
+                    t.pass_on_warranty_c,
+                    t.begin_guarantee_v,
+                    t.warranty_end_v,
+                    t.master_warranty_v,
+                    t.inherit_warranty_v,
+                    t.pass_on_warranty_v,
+                    t.sales_org,
+                    t.distr_channel,
+                    t.division,
+                    t.sales_office,
+                    t.sales_group,
+                FROM floc_create_functional_location t
                 WHERE batch_number = {batch}
-                ORDER BY t."Functional Location";
+                ORDER BY t.functional_location;
                 """;
             ws = wb.Worksheets.Worksheet("FLOC-Functional Location");
             ws.Unprotect();
@@ -259,11 +237,11 @@ namespace SptUtils.GenExcelUpload
             query = 
                 $"""
                 SELECT 
-                    t."Functional Location",
-                    t."Class",
-                    t."Characteristics",
-                    t."Char Value",
-                FROM excel_uploader_floc_create.vw_classification t
+                    t.functional_location,
+                    t,class,
+                    t.characteristics,
+                    t.char_value,
+                FROM floc_create_classification t
                 WHERE t.batch_number = {batch};
                 """;
             ws = wb.Worksheets.Worksheet("FLOC-Classification");
@@ -281,5 +259,6 @@ namespace SptUtils.GenExcelUpload
             };
             wb.Save();
         }
+
     }
 }
