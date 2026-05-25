@@ -32,7 +32,6 @@ namespace SptUtils.GenExcelUpload
                 .Build();
             
             var appSettings = builder.GetSection("AppSettings").Get<AppSettings>();
-            if (appSettings != null) Console.WriteLine(appSettings.EquiChangeTemplatePath);
 
             RootCommand rootCommand = new("GenFileUpload") 
             {
@@ -54,10 +53,10 @@ namespace SptUtils.GenExcelUpload
             };
             rootCommand.SetAction(parseResult =>
             {
-                string? databaseFile = parseResult.GetValue<string>("--database_file");
-                string? outputFolder = parseResult.GetValue<string>("--output_folder");
-                
-                if (databaseFile != null && outputFolder != null)
+
+                if (appSettings != null 
+                        && parseResult.GetValue<string>("--database_file") is string databaseFile 
+                        && parseResult.GetValue<string>("--output_folder") is string outputFolder)
                 {
                     Console.WriteLine($"GenExcelUpload:");
                     Console.WriteLine($"{databaseFile}");
@@ -68,11 +67,12 @@ namespace SptUtils.GenExcelUpload
                     using var connection = new SqliteConnection($"Data Source={databaseFile}");
                     connection.Open();
 
-                    var flocMake = new FlocCreate(connection);
-                    flocMake.WriteFlocCreateUpload(appSettings?.FlocCreateTemplatePath ?? "bad", outputFolder);
+                    var nameRoot = parseResult.GetValue<string>("--output_basename");
+                    
+                    FlocCreate.WriteFlocCreateUpload(connection, appSettings, outputFolder, nameRoot);
                         
-                    var equiMake = new EquiCreate(connection);
-                    equiMake.WriteEquiCreateUpload(appSettings?.EquiCreateTemplatePath ?? "bad", outputFolder);
+                    // var equiMake = new EquiCreate(connection);
+                    EquiCreate.WriteEquiCreateUpload(connection, appSettings, outputFolder, nameRoot);
                     return 0;
                 }
                 else

@@ -13,32 +13,47 @@
 // limitations under the License.
 
 
+
 using ClosedXML.Excel;
 using Microsoft.Data.Sqlite;
 
 namespace SptUtils.GenExcelUpload
 {
-    public class FlocCreate(SqliteConnection conn)
+    public static class FlocCreate
     {
-        public void WriteFlocCreateUpload(string uploadTemplatePath, string dest)
+        public static void WriteFlocCreateUpload(SqliteConnection conn, AppSettings appSettings, string outputFolder, string? nameRoot)
         {
+            string MakeOutputName(int i){
+                if (nameRoot is string root)
+                {
+                    var name1 = $"{root}_FLOC_CREATE_{i:D2}.xlsx";
+                    return Path.Combine(outputFolder, name1);
+                }
+                else
+                {
+                    var name1 =  $"FLOC_CREATE_{i:D2}.xlsx";
+                    return Path.Combine(outputFolder, name1);
+                }
+            };
             using var cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT max(batch_number) FROM floc_create_functional_location;";
-            if (cmd.ExecuteScalar() is long imaxBatch)
+            if (cmd.ExecuteScalar() is long maxBatch)
             {
-                for (int i = 1; i <= imaxBatch; i++)
+                for (int i = 1; i <= maxBatch; i++)
                 {
                     Console.WriteLine($"Index: {i}");
-                    GenExcelUpload1(uploadTemplatePath, dest, i);
+                    var uploadTemplatePath = appSettings.FlocCreateTemplatePath;
+
+                    var dest = MakeOutputName(i);
+                    GenExcelUpload1(conn, uploadTemplatePath, dest, i);
                 }
             }
         }
-        private void GenExcelUpload1(string uploadTemplatePath, string dest, int batch)
+        private static void GenExcelUpload1(SqliteConnection conn, string uploadTemplatePath, string dest, int batch)
         {
-            var destination = string.Format(dest, batch.ToString("00"));
-            File.Copy(uploadTemplatePath, destination, true);
+            File.Copy(uploadTemplatePath, dest, true);
             
-            using var wb = new XLWorkbook(destination);
+            using var wb = new XLWorkbook(dest);
             using var cmd = conn.CreateCommand();
             
             // "Change Request Header" tab

@@ -19,46 +19,61 @@ using Microsoft.Data.Sqlite;
 namespace SptUtils.GenExcelUpload {
 
 
-    public class EquiCreate(SqliteConnection conn)
+    public static class EquiCreate
     {
 
-        public void WriteEquiCreateUpload(string uploadTemplatePath, string dest)
+        public static void WriteEquiCreateUpload(SqliteConnection conn, AppSettings appSettings, string outputFolder, string? nameRoot)
         {
+            string MakeOutputName(int i){
+                if (nameRoot is string root)
+                {
+                    var name1 = $"{root}_EQUI_CREATE_{i:D2}.xlsx";
+                    return Path.Combine(outputFolder, name1);
+                }
+                else
+                {
+                    var name1 =  $"EQUI_CREATE_{i:D2}.xlsx";
+                    return Path.Combine(outputFolder, name1);
+                }
+            };
             using var cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT max(batch_number) FROM equi_create_equipment_data;";
-            if (cmd.ExecuteScalar() is long imaxBatch)
+            if (cmd.ExecuteScalar() is long maxBatch)
             {
-                for (int i = 1; i <= imaxBatch; i++)
+                for (int i = 1; i <= maxBatch; i++)
                 {
                     Console.WriteLine($"Index: {i}");
-                    GenExcelUpload1(uploadTemplatePath, dest, i);
+                    var uploadTemplatePath = appSettings.EquiCreateTemplatePath;
+
+                    var dest = MakeOutputName(i);
+                    GenExcelUpload1(conn, uploadTemplatePath, dest, i);
                 }
             }
 
         }
 
-        private void GenExcelUpload1(string uploadTemplatePath, string dest, int batch)
+        private static void GenExcelUpload1(SqliteConnection conn, string uploadTemplatePath, string dest, int batch)
         {
-            var destination = string.Format(dest, batch.ToString("00"));
-            File.Copy(uploadTemplatePath, destination, true);
+            File.Copy(uploadTemplatePath, dest, true);
             
-            using var wb = new XLWorkbook(destination);
-            using var cmd = conn.CreateCommand();
+            using var wb = new XLWorkbook(dest);
+            
             
             // "Change Request Header" tab
             string query = 
                 $"""
                 SELECT 
-                    t.Change_Request,
+                    t.change_request,
                     t.change_request_description,
                     t.priority,
-                    t.due_date,
+                    t.due_date
                 FROM equi_create_change_request_header t;
                 """;
             var ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();
-            cmd.CommandText = query;
-            using var reader1 = cmd.ExecuteReader();
+            
+            using var cmd1 = new SqliteCommand(query, conn);
+            using var reader1 = cmd1.ExecuteReader();
             var row = 6;
             while (reader1.Read())
             {
@@ -73,13 +88,13 @@ namespace SptUtils.GenExcelUpload {
             query = 
                 $"""
                 SELECT 
-                    t.notes,
+                    t.notes
                 FROM equi_create_change_request_notes t;
                 """;
             ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();
-            cmd.CommandText = query;
-            var reader2 = cmd.ExecuteReader();
+            using var cmd2 = new SqliteCommand(query, conn);
+            using var reader2 = cmd2.ExecuteReader();
             row = 5;
             while (reader2.Read())
             {
@@ -90,88 +105,88 @@ namespace SptUtils.GenExcelUpload {
             // "EQ-Equipment Data" tab
             query = $"""
                 SELECT 
-                    t."Equipment",
-                    t."EquipCategory",
-                    t."Description (medium)",
-                    t."Valid From",
-                    t."Inactive",
-                    t."Object type",
-                    t."AuthorizGroup",
-                    t."Gross Weight",
-                    t."Unit of weight",
-                    t."Inventory no",
-                    t."Size/dimens",
-                    t."Start-up date",
-                    t."AcquisitionValue",
-                    t."Currency",
-                    t."Acquistion date",
-                    t."Manufacturer",
-                    t."Model number",
-                    t."ManufPartNo",
-                    t."ManufSerialNo",
-                    t."ManufCountry",
-                    t."ConstructYear",
-                    t."ConstructMth",
-                    t."MaintPlant",
-                    t."Plant section",
-                    t."Location",
-                    t."Room",
-                    t."ABC indic",
-                    t."Work center",
-                    t."Sort field",
-                    t."Business Area",
-                    t."Asset",
-                    t."Sub-number",
-                    t."Cost Center",
-                    t."WBS Element",
-                    t."StandgOrder",
-                    t."SettlementOrder",
-                    t."Planning plant",
-                    t."Planner group",
-                    t."Main WorkCtr",
-                    t."Plnt WorkCenter",
-                    t."Catalog profile",
-                    t."Functional loc.",
-                    t."Superord.Equip.",
-                    t."Position",
-                    t."TechIdentNo.",
-                    t."Construction type Ma",
-                    t."Material",
-                    t."Material Serial Numb",
-                    t."Config.material",
-                    t."Status Profile",
-                    t."Status of an object",
-                    t."Status without stsno",
-                    t."Sales Org",
-                    t."Distr. Channel",
-                    t."Division",
-                    t."Sales Office",
-                    t."Sales Group",
-                    t."License no.",
-                    t."Begin guarantee(C)",
-                    t."Warranty end(C)",
-                    t."Master Warranty(C)",
-                    t."InheritWarranty(C)",
-                    t."Pass on warranty(C)",
-                    t."Begin guarantee(V)",
-                    t."Warranty end(V)",
-                    t."Master Warranty(V)",
-                    t."InheritWarranty(V)",
-                    t."Pass on warranty(V)",
-                    t."Vendor",
-                    t."Customer",
-                    t."End customer",
-                    t."CurCustomer",
-                    t."Operator",
-                    t."Delivery date",
-                FROM excel_uploader_equi_create.vw_equipment_data t
+                    t.equipment varchar,
+                    t.equip_category,
+                    t.description_medium,
+                    t.valid_from,
+                    t.inactive,
+                    t.object_type,
+                    t.authoriz_group,
+                    t.gross_weight,
+                    t.unit_of_weight,
+                    t.inventory_no,
+                    t.size_dimens,
+                    t.start_up_date,
+                    t.acquisition_value,
+                    t.currency,
+                    t.acquistion_date,
+                    t.manufacturer,
+                    t.model_number,
+                    t.manuf_part_no,
+                    t.manuf_serial_number,
+                    t.manuf_country,
+                    t.construct_year,
+                    t.construct_mth,
+                    t.maint_plant,
+                    t.plant_section,
+                    t.location,
+                    t.room,
+                    t.abc_indi,
+                    t.work_center,
+                    t.sort_field,
+                    t.business_area,
+                    t.asset,
+                    t.sub_number,
+                    t.cost_center,
+                    t.wbs_element,
+                    t.standg_order,
+                    t.settlement_order,
+                    t.planning_plant,
+                    t.planner_group,
+                    t.main_work_ctr,
+                    t.plnt_work_center,
+                    t.catalog_profile,
+                    t.functional_loc,
+                    t.superord_equip,
+                    t.position,
+                    t.tech_ident_no,
+                    t.construction_type_ma,
+                    t.material,
+                    t.material_serial_numb,
+                    t.config_material,
+                    t.status_profile,
+                    t.status_of_an_object,
+                    t.status_without_stsno,
+                    t.sales_org,
+                    t.distr_channel,
+                    t.division,
+                    t.sales_office,
+                    t.sales_group,
+                    t.license_no,
+                    t.begin_guarantee_c,
+                    t.warranty_end_c,
+                    t.master_warranty_c,
+                    t.inherit_warranty_c,
+                    t.pass_on_warranty_c,
+                    t.begin_guarantee_v,
+                    t.warranty_end_v,
+                    t.master_warranty_v,
+                    t.inherit_warranty_v,
+                    t.pass_on_warranty_v,
+                    t.vendor,
+                    t.customer,
+                    t.end_customer,
+                    t.cur_customer,
+                    t.operator,
+                    t.delivery_date
+                FROM equi_create_equipment_data t
                 WHERE batch_number = {batch}
-                ORDER BY t."Functional loc.";
+                ORDER BY t.functional_loc;
                 """;
             ws = wb.Worksheets.Worksheet("EQ-Equipment Data");
             ws.Unprotect();
-            cmd.CommandText = query;
-            var reader3 = cmd.ExecuteReader();
+            using var cmd3 = new SqliteCommand(query, conn);
+            using var reader3 = cmd3.ExecuteReader();
             row = 6;
             while (reader3.Read())
             {
@@ -256,17 +271,17 @@ namespace SptUtils.GenExcelUpload {
             query = 
                 $"""
                 SELECT 
-                    t."Equipment",
-                    t."Class",
-                    t."Characteristics",
-                    t."Char Value",
-                FROM excel_uploader_equi_create.vw_classification t
+                    t.equipment,
+                    t.class,
+                    t.characteristics,
+                    t.char_value
+                FROM equi_create_classification t
                 WHERE t.batch_number = {batch};
                 """;
             ws = wb.Worksheets.Worksheet("EQ-Classification");
             ws.Unprotect();
-            cmd.CommandText = query;
-            var reader4 = cmd.ExecuteReader();
+            using var cmd4 = new SqliteCommand(query, conn);
+            using var reader4 = cmd4.ExecuteReader();
             row = 5;
             while (reader4.Read())
             {
