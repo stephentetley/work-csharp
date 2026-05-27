@@ -18,6 +18,7 @@ using System.Text.Json;
 using ClosedXML.Excel;
 using Microsoft.Extensions.FileSystemGlobbing;
 
+using SptUtils.ReadDistBoardSchedule.Base;
 
 namespace SptUtils.ReadDistBoardSchedule
 {

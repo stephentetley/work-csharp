@@ -13,7 +13,7 @@
 
 using ClosedXML.Excel;
 
-namespace SptUtils.ReadDistBoardSchedule 
+namespace SptUtils.ReadDistBoardSchedule.Base
 {
 
     public static class ReadSchedule

@@ -14,7 +14,7 @@
 
 using System.Text.Json;
 
-namespace SptUtils.ReadDistBoardSchedule 
+namespace SptUtils.ReadDistBoardSchedule.Base
 {
     public record DistBoardCircuit
     (

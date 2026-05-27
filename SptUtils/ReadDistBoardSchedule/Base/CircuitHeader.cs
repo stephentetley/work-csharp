@@ -12,7 +12,7 @@
 
 
 
-namespace SptUtils.ReadDistBoardSchedule 
+namespace SptUtils.ReadDistBoardSchedule.Base
 {
     public record CircuitHeader
     (
