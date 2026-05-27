@@ -17,6 +17,7 @@ using System.CommandLine;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Data.Sqlite;
 
+using SptUtils.GenExcelUpload.Base;
 
 namespace SptUtils.GenExcelUpload
 {
@@ -62,12 +63,10 @@ namespace SptUtils.GenExcelUpload
                     Console.WriteLine($"{databaseFile}");
                     Console.WriteLine($"{outputFolder}");
                     
-                    // TODO validate databaseFile
-                    string connstr = $"DataSource = {databaseFile};ACCESS_MODE=READ_WRITE;";
                     using var connection = new SqliteConnection($"Data Source={databaseFile}");
                     connection.Open();
 
-                    var nameRoot = parseResult.GetValue<string>("--output_basename");
+                    string? nameRoot = parseResult.GetValue<string>("--output_basename");
                     
                     FlocCreate.WriteFlocCreateUpload(connection, appSettings, outputFolder, nameRoot);
                     FlocChange.WriteFlocChangeUpload(connection, appSettings, outputFolder, nameRoot);
@@ -87,5 +86,5 @@ namespace SptUtils.GenExcelUpload
            
         }
     }
-
 }
+

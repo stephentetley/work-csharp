@@ -17,41 +17,32 @@
 using ClosedXML.Excel;
 using Microsoft.Data.Sqlite;
 
-namespace SptUtils.GenExcelUpload
+namespace SptUtils.GenExcelUpload.Base
 {
-    public static class FlocChange
+    public static class FlocCreate
     {
-        public static void WriteFlocChangeUpload(SqliteConnection conn, AppSettings appSettings, string outputFolder, string? nameRoot)
+        public static void WriteFlocCreateUpload(SqliteConnection conn, AppSettings appSettings, string outputFolder, string? nameRoot)
         {
             string MakeOutputName(int i){
                 if (nameRoot is string root)
                 {
-                    var name1 = $"{root}_FLOC_CHANGE_{i:D2}.xlsx";
+                    var name1 = $"{root}_FLOC_CREATE_{i:D2}.xlsx";
                     return Path.Combine(outputFolder, name1);
                 }
                 else
                 {
-                    var name1 =  $"FLOC_CHANGE_{i:D2}.xlsx";
+                    var name1 =  $"FLOC_CREATE_{i:D2}.xlsx";
                     return Path.Combine(outputFolder, name1);
                 }
             };
             using var cmd = conn.CreateCommand();
-            var query = 
-                """
-                with cte as (
-                    select max(batch_number) as max_batch from floc_change_functional_location
-                    union
-                    select max(batch_number) as max_batch from floc_change_classification
-                )
-                select max(max_batch) from cte;
-                """;
-            cmd.CommandText = query;
+            cmd.CommandText = "SELECT max(batch_number) FROM floc_create_functional_location;";
             if (cmd.ExecuteScalar() is long maxBatch)
             {
                 for (int i = 1; i <= maxBatch; i++)
                 {
                     Console.WriteLine($"Index: {i}");
-                    var uploadTemplatePath = appSettings.FlocChangeTemplatePath;
+                    var uploadTemplatePath = appSettings.FlocCreateTemplatePath;
 
                     var dest = MakeOutputName(i);
                     GenExcelUpload1(conn, uploadTemplatePath, dest, i);
@@ -73,7 +64,7 @@ namespace SptUtils.GenExcelUpload
                     t.change_request_description,
                     t.priority,
                     t.due_date
-                FROM floc_change_change_request_header t;
+                FROM floc_create_change_request_header t;
                 """;
             var ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();
@@ -94,7 +85,7 @@ namespace SptUtils.GenExcelUpload
                 $"""
                 SELECT 
                     t.notes
-                FROM floc_change_change_request_notes t;
+                FROM floc_create_change_request_notes t;
                 """;
             ws = wb.Worksheets.Worksheet("Change Request Header");
             ws.Unprotect();
@@ -112,12 +103,14 @@ namespace SptUtils.GenExcelUpload
                 SELECT 
                     t.functional_location,
                     t.floc_description,
+                    t.category,
+                    t.str_indicator,
                     t.inactive,
                     t.object_type,
                     t.authoriz_group,
                     t.gross_weight,
                     t.unit_of_weight,
-                    inventory_no,
+                    t.inventory_no,
                     t.size_dimens,
                     t.start_up_date,
                     t.acquisition_value,
@@ -151,6 +144,7 @@ namespace SptUtils.GenExcelUpload
                     t.catalog_profile,
                     t.sup_funct_loc,
                     t.position,
+                    t.ref_location,
                     t.installation_allowed,
                     t.single_inst,
                     t.construction_type,
@@ -173,7 +167,7 @@ namespace SptUtils.GenExcelUpload
                     t.division,
                     t.sales_office,
                     t.sales_group
-                FROM floc_change_functional_location t
+                FROM floc_create_functional_location t
                 WHERE batch_number = {batch}
                 ORDER BY t.functional_location;
                 """;
@@ -247,6 +241,9 @@ namespace SptUtils.GenExcelUpload
                 if (!reader3.IsDBNull(60)) ws.Cell(row, "BI").Value = reader3.GetString(60);   // Pass on warranty(V)
                 if (!reader3.IsDBNull(61)) ws.Cell(row, "BJ").Value = reader3.GetString(61);   // Sales Org
                 if (!reader3.IsDBNull(62)) ws.Cell(row, "BK").Value = reader3.GetString(62);   // Distr. Channel
+                if (!reader3.IsDBNull(63)) ws.Cell(row, "BL").Value = reader3.GetString(63);   // Division
+                if (!reader3.IsDBNull(64)) ws.Cell(row, "BM").Value = reader3.GetString(64);   // Sales Office
+                if (!reader3.IsDBNull(65)) ws.Cell(row, "BN").Value = reader3.GetString(65);   // Sales Group
                 row++;
             };
 
@@ -257,9 +254,8 @@ namespace SptUtils.GenExcelUpload
                     t.functional_location,
                     t.class,
                     t.characteristics,
-                    t.char_value,
-                    t.class_delete_ind
-                FROM floc_change_classification t
+                    t.char_value
+                FROM floc_create_classification t
                 WHERE t.batch_number = {batch};
                 """;
             ws = wb.Worksheets.Worksheet("FLOC-Classification");
@@ -273,7 +269,6 @@ namespace SptUtils.GenExcelUpload
                 if (!reader4.IsDBNull(1)) ws.Cell(row, "B").Value = reader4.GetString(1);   // Class
                 if (!reader4.IsDBNull(2)) ws.Cell(row, "C").Value = reader4.GetString(2);   // Characteristics
                 if (!reader4.IsDBNull(3)) ws.Cell(row, "D").Value = reader4.GetString(3);   // Char Value
-                if (!reader4.IsDBNull(4)) ws.Cell(row, "E").Value = reader4.GetString(4);   // Class Delete Ind
                 row++;
             };
             wb.Save();

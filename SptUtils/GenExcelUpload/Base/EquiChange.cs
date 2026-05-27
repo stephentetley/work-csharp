@@ -16,8 +16,8 @@
 using ClosedXML.Excel;
 using Microsoft.Data.Sqlite;
 
-namespace SptUtils.GenExcelUpload {
-
+namespace SptUtils.GenExcelUpload.Base 
+{
 
     public static class EquiChange
     {

@@ -13,7 +13,8 @@
 // limitations under the License.
 
 
-namespace SptUtils.GenExcelUpload {
+namespace SptUtils.GenExcelUpload.Base 
+{
 
     public class AppSettings
     {
