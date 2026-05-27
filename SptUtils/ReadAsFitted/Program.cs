@@ -18,6 +18,8 @@ using System.Text.Json;
 using ClosedXML.Excel;
 using Microsoft.Extensions.FileSystemGlobbing;
 
+using SptUtils.ReadAsFitted.Base;
+
 namespace SptUtils.ReadAsFitted 
 {
 

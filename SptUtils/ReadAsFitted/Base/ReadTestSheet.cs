@@ -13,7 +13,7 @@
 
 using ClosedXML.Excel;
 
-namespace SptUtils.ReadAsFitted 
+namespace SptUtils.ReadAsFitted.Base
 {
 
     public static class ReadTestSheet

@@ -12,7 +12,7 @@
 
 
 
-namespace SptUtils.ReadAsFitted 
+namespace SptUtils.ReadAsFitted.Base 
 {
     public record TestHeader
     (

@@ -14,7 +14,7 @@
 
 using System.Text.Json;
 
-namespace SptUtils.ReadAsFitted 
+namespace SptUtils.ReadAsFitted.Base
 {
     public record AsFittedCircuit
     (
