@@ -46,10 +46,25 @@ namespace SptUtils.FlocDelta.Base
             command.CommandText = $"attach '{sqliteOutput}' as sqlite_db (type sqlite);";
             i += command.ExecuteNonQuery();
 
+            command.CommandText = $"set variable floc_delta_worklist = '{worklistXlsx}';";
+            i += command.ExecuteNonQuery();
+
+
             var sqlPath = Path.Combine(appSettings.WorkSQLRoot, "Scripts2/excel_uploader/create_sqlite_tables.sql");
             i += ExecScript(conn, sqlPath);
 
-            
+            sqlPath = Path.Combine(appSettings.WorkSQLRoot, "Scripts2/floc_delta/01_create_floc_delta_tables.sql");
+            i += ExecScript(conn, sqlPath);
+
+            sqlPath = Path.Combine(appSettings.WorkSQLRoot, "Scripts2/floc_delta/02_import_worklist.sql");
+            i += ExecScript(conn, sqlPath);
+
+            sqlPath = Path.Combine(appSettings.WorkSQLRoot, "Scripts2/floc_delta/03_floc_delta_insert_into.sql");
+            i += ExecScript(conn, sqlPath);
+
+            sqlPath = Path.Combine(appSettings.WorkSQLRoot, "Scripts2/floc_delta/04_excel_uploader_insert_into.sql");
+            i += ExecScript(conn, sqlPath);
+
 
             command.CommandText = $"detach sqlite_db;";
             i += command.ExecuteNonQuery();
