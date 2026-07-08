@@ -50,6 +50,7 @@ namespace SptUtils.ReadDistBoardSchedule.Base
             writer.WriteString("db_reference", DbReference);
             writer.WriteString("supply_cable_reference", SupplyCableRef);
             if (NumberOfWays.HasValue) writer.WriteNumber("number_of_ways", NumberOfWays.Value); else writer.WriteNull("number_of_ways");
+            writer.WriteString("fed_from", FedFrom);
             if (ProtectiveDeviceA.HasValue) writer.WriteNumber("protective_device_a", ProtectiveDeviceA.Value); else writer.WriteNull("protective_device_a");
             writer.WriteString("dist_board_phase", DistBoardPhase);
             if (FaultCurrentkA.HasValue) writer.WriteNumber("fault_current_ka", FaultCurrentkA.Value); else writer.WriteNull("fault_current_ka");

@@ -82,9 +82,13 @@ namespace SptUtils.ReadDistBoardSchedule
                 writer.WriteStartArray();
                 foreach (var worksheet in workbook.Worksheets)
                 {
-                    var circuits = ReadSchedule.ParseDBSchedule(fileName, modifiedYear, worksheet);
-                    if (circuits.Count > 0) Console.WriteLine("Sheet: " + worksheet.Name);
-                    foreach(var circuit in circuits) circuit.WriteJson(writer);
+                    if (worksheet.Visibility == XLWorksheetVisibility.Visible) {
+                        var circuits = ReadSchedule.ParseDBSchedule(fileName, modifiedYear, worksheet);
+                        if (circuits.Count > 0) { 
+                            Console.WriteLine("Sheet: " + worksheet.Name);
+                            foreach(var circuit in circuits) circuit.WriteJson(writer);
+                        }
+                    }
                 }
                 writer.WriteEndArray();
                 Console.WriteLine("Wrote: " + outputJsonFile);
