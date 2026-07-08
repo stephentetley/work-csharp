@@ -19,7 +19,7 @@ namespace SptUtils.ReadDistBoardSchedule.Base
     public static class ReadSchedule
     {
 
-        public static List<DistBoardCircuit> ParseDBSchedule(string fileName, IXLWorksheet ws)
+        public static List<DistBoardCircuit> ParseDBSchedule(string fileName, int modifiedYear, IXLWorksheet ws)
         {
             int getLastRowNumber()
             {
@@ -29,7 +29,7 @@ namespace SptUtils.ReadDistBoardSchedule.Base
                 return lastRowUsed?.RowNumber() ?? 0;
             };
         
-            var header = ReadHeader(fileName, ws);
+            var header = ReadHeader(fileName, modifiedYear, ws);
             var circuits = new List<DistBoardCircuit>();
             for (int i = 26; i < getLastRowNumber(); i++)
             {
@@ -72,13 +72,14 @@ namespace SptUtils.ReadDistBoardSchedule.Base
             }
         }
 
-        private static CircuitHeader ReadHeader(string fileName, IXLWorksheet ws)
+        private static CircuitHeader ReadHeader(string fileName, int modifiedYear, IXLWorksheet ws)
         {
             var dbReference = ws.Cell("E7").GetString() + "-" + ws.Cell("F7").GetString();
         
             return new CircuitHeader
             (
                 FileName: fileName,
+                LastModifiedYear: modifiedYear,
                 TabName: ws.Name,
                 ProjectReference: ws.Cell("E5").GetString(),
                 DbReference: dbReference,
@@ -104,6 +105,7 @@ namespace SptUtils.ReadDistBoardSchedule.Base
                 return new DistBoardCircuit
                 (
                     FileName: header.FileName, 
+                    LastModifiedYear: header.LastModifiedYear,
                     TabName: header.TabName, 
                     ProjectReference: header.ProjectReference,
                     DbReference: header.DbReference,
@@ -113,6 +115,7 @@ namespace SptUtils.ReadDistBoardSchedule.Base
                     ProtectiveDeviceA: header.ProtectiveDeviceA,
                     DistBoardPhase: header.DistBoardPhase,
                     FaultCurrentkA: header.FaultCurrentkA,
+                    SheetRow: row.RowNumber(),
                     Way: way.Value,
                     Phase: phase,
                     LoadReference: loadReference,

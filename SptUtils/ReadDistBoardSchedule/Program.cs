@@ -17,7 +17,7 @@ using System.CommandLine;
 using System.Text.Json;
 using ClosedXML.Excel;
 using Microsoft.Extensions.FileSystemGlobbing;
-
+using SixLabors.Fonts;
 using SptUtils.ReadDistBoardSchedule.Base;
 
 namespace SptUtils.ReadDistBoardSchedule
@@ -78,10 +78,11 @@ namespace SptUtils.ReadDistBoardSchedule
                 using var stream = File.Create(outputJsonFile);
                 using var writer = new Utf8JsonWriter(stream, options);
                 var fileName = Path.GetFileName(dbSchedule);
+                var modifiedYear = workbook.Properties.Modified.Year;
                 writer.WriteStartArray();
                 foreach (var worksheet in workbook.Worksheets)
                 {
-                    var circuits = ReadSchedule.ParseDBSchedule(fileName, worksheet);
+                    var circuits = ReadSchedule.ParseDBSchedule(fileName, modifiedYear, worksheet);
                     if (circuits.Count > 0) Console.WriteLine("Sheet: " + worksheet.Name);
                     foreach(var circuit in circuits) circuit.WriteJson(writer);
                 }

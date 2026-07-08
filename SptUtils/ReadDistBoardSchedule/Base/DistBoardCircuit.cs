@@ -19,6 +19,7 @@ namespace SptUtils.ReadDistBoardSchedule.Base
     public record DistBoardCircuit
     (
         string FileName, 
+        int LastModifiedYear,
         string TabName,
         string ProjectReference,
         string DbReference,
@@ -27,7 +28,8 @@ namespace SptUtils.ReadDistBoardSchedule.Base
         string FedFrom,
         double? ProtectiveDeviceA,
         string DistBoardPhase,
-        double? FaultCurrentkA,        
+        double? FaultCurrentkA, 
+        int SheetRow,       
         int Way, 
         string Phase,
         string LoadReference,
@@ -42,6 +44,7 @@ namespace SptUtils.ReadDistBoardSchedule.Base
         {
             writer.WriteStartObject();
                         writer.WriteString("file_name", FileName);
+            writer.WriteNumber("file_last_modified_year", LastModifiedYear);
             writer.WriteString("sheet_name", TabName);
             writer.WriteString("project_reference", ProjectReference);
             writer.WriteString("db_reference", DbReference);
@@ -50,6 +53,7 @@ namespace SptUtils.ReadDistBoardSchedule.Base
             if (ProtectiveDeviceA.HasValue) writer.WriteNumber("protective_device_a", ProtectiveDeviceA.Value); else writer.WriteNull("protective_device_a");
             writer.WriteString("dist_board_phase", DistBoardPhase);
             if (FaultCurrentkA.HasValue) writer.WriteNumber("fault_current_ka", FaultCurrentkA.Value); else writer.WriteNull("fault_current_ka");
+            writer.WriteNumber("sheet_row", SheetRow);
             writer.WriteNumber("way", Way);
             writer.WriteString("phase", Phase);
             writer.WriteString("load_reference", LoadReference);

@@ -17,6 +17,7 @@ namespace SptUtils.ReadDistBoardSchedule.Base
     public record CircuitHeader
     (
         string FileName, 
+        int LastModifiedYear,
         string TabName,
         string ProjectReference,
         string DbReference,

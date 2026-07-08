@@ -29,6 +29,7 @@ namespace SptUtils.ReadAsFitted.Base
         string TpOrSp,
         string Location,
         string DbOrPanelIncomerDetails,
+        string CircuitColumn,
         string CableNum,
         string FedFrom,
         string CircuitRefAndPhase,
@@ -65,6 +66,7 @@ namespace SptUtils.ReadAsFitted.Base
             writer.WriteString("tp_or_sp", TpOrSp);
             writer.WriteString("location", Location);
             writer.WriteString("db_or_panel_incomer_details", DbOrPanelIncomerDetails);
+            writer.WriteString("circuit_column", CircuitColumn);
             writer.WriteString("cable_num", CableNum);
             writer.WriteString("fed_from", FedFrom);
             writer.WriteString("circuit_ref_and_phase", CircuitRefAndPhase);
