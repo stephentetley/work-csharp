@@ -262,7 +262,7 @@ namespace SptUtils.GenExcelUpload.Base
             ws.Unprotect();
             using var cmd4 = new SqliteCommand(query, conn);
             var reader4 = cmd4.ExecuteReader();
-            row = 5;
+            row = 6;
             while (reader4.Read())
             {
                 if (!reader4.IsDBNull(0)) ws.Cell(row, "A").Value = reader4.GetString(0);   // Functional Location
