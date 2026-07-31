@@ -100,7 +100,7 @@ namespace SptUtils.GenExcelUpload.Base
             ws.Unprotect();
             using var cmd2 = new SqliteCommand(query, conn);
             var reader2 = cmd2.ExecuteReader();
-            row = 6;
+            row = 5;
             while (reader2.Read())
             {
                 if (!reader2.IsDBNull(0)) ws.Cell(row, "A").Value = reader2.GetString(0);   // usmd_note
@@ -266,7 +266,7 @@ namespace SptUtils.GenExcelUpload.Base
             ws.Unprotect();
             using var cmd4 = new SqliteCommand(query, conn);
             var reader4 = cmd4.ExecuteReader();
-            row = 5;
+            row = 6;
             while (reader4.Read())
             {
                 if (!reader4.IsDBNull(0)) ws.Cell(row, "A").Value = reader4.GetString(0);   // Functional Location
