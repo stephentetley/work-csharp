@@ -48,6 +48,10 @@ namespace SptUtils.GenExcelUpload.Base
                     var dest = MakeOutputName(i);
                     GenExcelUpload1(conn, uploadTemplatePath, dest, i);
                 }
+            } 
+            else
+            {
+                Console.WriteLine($"EquiCreate - empty");
             }
 
         }

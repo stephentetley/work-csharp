@@ -48,6 +48,10 @@ namespace SptUtils.GenExcelUpload.Base
                     GenExcelUpload1(conn, uploadTemplatePath, dest, i);
                 }
             }
+            else
+            {
+                Console.WriteLine($"FlocCreate - empty");
+            }
         }
         private static void GenExcelUpload1(SqliteConnection conn, string uploadTemplatePath, string dest, int batch)
         {

@@ -58,6 +58,10 @@ namespace SptUtils.GenExcelUpload.Base
                     GenExcelUpload1(conn, uploadTemplatePath, dest, i);
                 }
             }
+            else
+            {
+                Console.WriteLine($"EquiChange - empty");
+            }
 
         }
 
