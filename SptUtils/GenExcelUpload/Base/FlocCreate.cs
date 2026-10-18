@@ -246,6 +246,69 @@ namespace SptUtils.GenExcelUpload.Base
                 if (!reader3.IsDBNull(65)) ws.Cell(row, "BN").Value = reader3.GetString(65);   // Sales Group
                 row++;
             };
+            
+            // 'FLOC - Address Maintenance' tab
+            query = 
+                $"""
+                SELECT 
+                    t.functional_location,
+                    t.class,
+                    t.characteristics,
+                    t.char_value
+                FROM floc_create_address_maintenance t
+                WHERE t.batch_number = {batch};
+                """;
+            ws = wb.Worksheets.Worksheet("FLOC - Address Maintenance");
+            ws.Unprotect();
+            using var cmd4 = new SqliteCommand(query, conn);
+            var reader4 = cmd4.ExecuteReader();
+            row = 6;
+            while (reader4.Read())
+            {
+                if (!reader4.IsDBNull(0)) ws.Cell(row, "A").Value = reader4.GetString(0);   // Functional Location
+                if (!reader4.IsDBNull(1)) ws.Cell(row, "B").Value = reader4.GetString(1);   // Title
+                if (!reader4.IsDBNull(2)) ws.Cell(row, "C").Value = reader4.GetString(2);   // Name1
+                if (!reader4.IsDBNull(3)) ws.Cell(row, "D").Value = reader4.GetString(3);   // Name2
+                if (!reader4.IsDBNull(4)) ws.Cell(row, "E").Value = reader4.GetString(4);   // Name3
+                if (!reader4.IsDBNull(5)) ws.Cell(row, "F").Value = reader4.GetString(5);   // Name4
+                if (!reader4.IsDBNull(6)) ws.Cell(row, "G").Value = reader4.GetString(6);   // Search Term1
+                if (!reader4.IsDBNull(7)) ws.Cell(row, "H").Value = reader4.GetString(7);   // Search Term 2
+                if (!reader4.IsDBNull(8)) ws.Cell(row, "I").Value = reader4.GetString(8);   // C/O Name
+                if (!reader4.IsDBNull(9)) ws.Cell(row, "J").Value = reader4.GetString(9);   // Building
+                if (!reader4.IsDBNull(10)) ws.Cell(row, "K").Value = reader4.GetString(10);   // Floor
+                if (!reader4.IsDBNull(11)) ws.Cell(row, "L").Value = reader4.GetString(11);   // Room
+                if (!reader4.IsDBNull(12)) ws.Cell(row, "M").Value = reader4.GetString(12);   // House No.
+                if (!reader4.IsDBNull(13)) ws.Cell(row, "N").Value = reader4.GetString(13);   // Street
+                if (!reader4.IsDBNull(14)) ws.Cell(row, "O").Value = reader4.GetString(14);   // Supplement
+                if (!reader4.IsDBNull(15)) ws.Cell(row, "P").Value = reader4.GetString(15);   // Street2
+                if (!reader4.IsDBNull(16)) ws.Cell(row, "Q").Value = reader4.GetString(16);   // Street3
+                if (!reader4.IsDBNull(17)) ws.Cell(row, "R").Value = reader4.GetString(17);   // Street4
+                if (!reader4.IsDBNull(18)) ws.Cell(row, "S").Value = reader4.GetString(18);   // Street5
+                if (!reader4.IsDBNull(19)) ws.Cell(row, "T").Value = reader4.GetString(19);   // District
+                if (!reader4.IsDBNull(20)) ws.Cell(row, "U").Value = reader4.GetString(20);   // Postal Code
+                if (!reader4.IsDBNull(21)) ws.Cell(row, "V").Value = reader4.GetString(21);   // City
+                if (!reader4.IsDBNull(22)) ws.Cell(row, "W").Value = reader4.GetString(22);   // Other City
+                if (!reader4.IsDBNull(23)) ws.Cell(row, "X").Value = reader4.GetString(23);   // Country
+                if (!reader4.IsDBNull(24)) ws.Cell(row, "Y").Value = reader4.GetString(24);   // Region
+                if (!reader4.IsDBNull(25)) ws.Cell(row, "Z").Value = reader4.GetString(25);   // Time Zone
+                if (!reader4.IsDBNull(26)) ws.Cell(row, "AA").Value = reader4.GetString(26);   // Tax Jurisdiction
+                if (!reader4.IsDBNull(27)) ws.Cell(row, "AB").Value = reader4.GetString(27);   // Transportation Zone
+                if (!reader4.IsDBNull(28)) ws.Cell(row, "AC").Value = reader4.GetString(28);   // StrAdr Undeliverable
+                if (!reader4.IsDBNull(29)) ws.Cell(row, "AD").Value = reader4.GetString(29);   // Structure Group
+                if (!reader4.IsDBNull(30)) ws.Cell(row, "AE").Value = reader4.GetString(30);   // PO Box
+                if (!reader4.IsDBNull(31)) ws.Cell(row, "AF").Value = reader4.GetString(31);   // PO Box w/o No.
+                if (!reader4.IsDBNull(32)) ws.Cell(row, "AG").Value = reader4.GetString(32);   // Dlvry Serv/Dlvry No
+                if (!reader4.IsDBNull(33)) ws.Cell(row, "AH").Value = reader4.GetString(33);   // Number of Delivery Service
+                if (!reader4.IsDBNull(34)) ws.Cell(row, "AI").Value = reader4.GetString(34);   // PB Box Postal Code
+                if (!reader4.IsDBNull(35)) ws.Cell(row, "AJ").Value = reader4.GetString(35);   // PO Box Other City
+                if (!reader4.IsDBNull(36)) ws.Cell(row, "AK").Value = reader4.GetString(36);   // PO Box Lobby
+                if (!reader4.IsDBNull(37)) ws.Cell(row, "AL").Value = reader4.GetString(37);   // PO Box Other Country
+                if (!reader4.IsDBNull(38)) ws.Cell(row, "AM").Value = reader4.GetString(38);   // PO Box Undeleverable
+                if (!reader4.IsDBNull(39)) ws.Cell(row, "AN").Value = reader4.GetString(39);   // PO Box Other Region
+                if (!reader4.IsDBNull(40)) ws.Cell(row, "AO").Value = reader4.GetString(40);   // Company Postal Code
+                if (!reader4.IsDBNull(41)) ws.Cell(row, "AP").Value = reader4.GetString(41);   // Comments
+                row++;
+            };
 
             // 'FLOC-Classification' tab
             query = 
@@ -260,10 +323,10 @@ namespace SptUtils.GenExcelUpload.Base
                 """;
             ws = wb.Worksheets.Worksheet("FLOC-Classification");
             ws.Unprotect();
-            using var cmd4 = new SqliteCommand(query, conn);
-            var reader4 = cmd4.ExecuteReader();
+            using var cmd5 = new SqliteCommand(query, conn);
+            var reader5 = cmd5.ExecuteReader();
             row = 6;
-            while (reader4.Read())
+            while (reader5.Read())
             {
                 if (!reader4.IsDBNull(0)) ws.Cell(row, "A").Value = reader4.GetString(0);   // Functional Location
                 if (!reader4.IsDBNull(1)) ws.Cell(row, "B").Value = reader4.GetString(1);   // Class
