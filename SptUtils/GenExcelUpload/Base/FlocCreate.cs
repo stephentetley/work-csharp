@@ -256,9 +256,47 @@ namespace SptUtils.GenExcelUpload.Base
                 $"""
                 SELECT 
                     t.functional_location,
-                    t.class,
-                    t.characteristics,
-                    t.char_value
+                    t.title,
+                    t.name1,
+                    t.name2,
+                    t.name3,
+                    t.name4,
+                    t.search_term1,
+                    t.search_term2,
+                    t.c_o_name,
+                    t.building,
+                    t.floor,
+                    t.room,
+                    t.house_no,
+                    t.street,
+                    t.supplement,
+                    t.street2,
+                    t.street3,
+                    t.street4,
+                    t.street5,
+                    t.district,
+                    t.postal_code,
+                    t.city,
+                    t.other_city,
+                    t.country,
+                    t.region,
+                    t.time_zone,
+                    t.tax_jurisdiction,
+                    t.transportation_zone,
+                    t.stradr_undeliverable,
+                    t.structure_group,
+                    t.po_box,
+                    t.po_box_w_o_no,
+                    t.dlvry_serv_dlvry_no,
+                    t.number_of_delivery_service,
+                    t.pb_box_postal_code,
+                    t.po_box_other_city,
+                    t.po_box_lobby,
+                    t.po_box_other_country,
+                    t.po_box_undeliverable,
+                    t.po_box_other_region,
+                    t.company_postal_code,
+                    t.comments
                 FROM floc_create_address_maintenance t
                 WHERE t.batch_number = {batch};
                 """;
@@ -332,10 +370,10 @@ namespace SptUtils.GenExcelUpload.Base
             row = 6;
             while (reader5.Read())
             {
-                if (!reader4.IsDBNull(0)) ws.Cell(row, "A").Value = reader4.GetString(0);   // Functional Location
-                if (!reader4.IsDBNull(1)) ws.Cell(row, "B").Value = reader4.GetString(1);   // Class
-                if (!reader4.IsDBNull(2)) ws.Cell(row, "C").Value = reader4.GetString(2);   // Characteristics
-                if (!reader4.IsDBNull(3)) ws.Cell(row, "D").Value = reader4.GetString(3);   // Char Value
+                if (!reader5.IsDBNull(0)) ws.Cell(row, "A").Value = reader5.GetString(0);   // Functional Location
+                if (!reader5.IsDBNull(1)) ws.Cell(row, "B").Value = reader5.GetString(1);   // Class
+                if (!reader5.IsDBNull(2)) ws.Cell(row, "C").Value = reader5.GetString(2);   // Characteristics
+                if (!reader5.IsDBNull(3)) ws.Cell(row, "D").Value = reader5.GetString(3);   // Char Value
                 row++;
             };
             wb.Save();
