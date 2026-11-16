@@ -23,37 +23,33 @@ namespace SptUtils.GenExcelUpload.Base
     {
         public static void WriteFlocCreateUpload(SqliteConnection conn, AppSettings appSettings, string outputFolder, string? nameRoot)
         {
-            string MakeOutputName(int i){
+            string MakeOutputName(){
                 if (nameRoot is string root)
                 {
-                    var name1 = $"{root}_FLOC_CREATE_{i:D2}.xlsx";
+                    var name1 = $"{root}_FLOC_CREATE.xlsx";
                     return Path.Combine(outputFolder, name1);
                 }
                 else
                 {
-                    var name1 =  $"FLOC_CREATE_{i:D2}.xlsx";
+                    var name1 =  $"FLOC_CREATE.xlsx";
                     return Path.Combine(outputFolder, name1);
                 }
             };
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT max(batch_number) FROM floc_create_functional_location;";
-            if (cmd.ExecuteScalar() is long maxBatch)
+            cmd.CommandText = "SELECT max(functional_location) FROM floc_create_functional_location;";
+            if (cmd.ExecuteScalar() is string maxFloc)
             {
-                for (int i = 1; i <= maxBatch; i++)
-                {
-                    Console.WriteLine($"Index: {i}");
-                    var uploadTemplatePath = appSettings.FlocCreateTemplatePath;
+                var uploadTemplatePath = appSettings.FlocCreateTemplatePath;
 
-                    var dest = MakeOutputName(i);
-                    GenExcelUpload1(conn, uploadTemplatePath, dest, i);
-                }
+                var dest = MakeOutputName();
+                GenExcelUpload1(conn, uploadTemplatePath, dest);
             }
             else
             {
                 Console.WriteLine($"FlocCreate - empty");
             }
         }
-        private static void GenExcelUpload1(SqliteConnection conn, string uploadTemplatePath, string dest, int batch)
+        private static void GenExcelUpload1(SqliteConnection conn, string uploadTemplatePath, string dest)
         {
             File.Copy(uploadTemplatePath, dest, true);
             
@@ -172,7 +168,6 @@ namespace SptUtils.GenExcelUpload.Base
                     t.sales_office,
                     t.sales_group
                 FROM floc_create_functional_location t
-                WHERE batch_number = {batch}
                 ORDER BY t.functional_location;
                 """;
             ws = wb.Worksheets.Worksheet("FLOC-Functional Location");
@@ -298,7 +293,6 @@ namespace SptUtils.GenExcelUpload.Base
                     t.company_postal_code,
                     t.comments
                 FROM floc_create_address_maintenance t
-                WHERE t.batch_number = {batch};
                 """;
             ws = wb.Worksheets.Worksheet("FLOC - Address Maintenance");
             ws.Unprotect();
@@ -361,7 +355,6 @@ namespace SptUtils.GenExcelUpload.Base
                     t.characteristics,
                     t.char_value
                 FROM floc_create_classification t
-                WHERE t.batch_number = {batch};
                 """;
             ws = wb.Worksheets.Worksheet("FLOC-Classification");
             ws.Unprotect();

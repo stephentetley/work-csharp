@@ -24,15 +24,15 @@ namespace SptUtils.GenExcelUpload.Base
 
         public static void WriteEquiChangeUpload(SqliteConnection conn, AppSettings appSettings, string outputFolder, string? nameRoot)
         {
-            string MakeOutputName(int i){
+            string MakeOutputName(){
                 if (nameRoot is string root)
                 {
-                    var name1 = $"{root}_EQUI_CHANGE_{i:D2}.xlsx";
+                    var name1 = $"{root}_EQUI_CHANGE.xlsx";
                     return Path.Combine(outputFolder, name1);
                 }
                 else
                 {
-                    var name1 =  $"EQUI_CHANGE_{i:D2}.xlsx";
+                    var name1 =  $"EQUI_CHANGE.xlsx";
                     return Path.Combine(outputFolder, name1);
                 }
             };
@@ -40,23 +40,18 @@ namespace SptUtils.GenExcelUpload.Base
             var query = 
                 """
                 with cte as (
-                    select max(batch_number) as max_batch from equi_change_equipment_data
+                    select max(equipment) as max_equi from equi_change_equipment_data
                     union
-                    select max(batch_number) as max_batch from equi_change_classification
+                    select max(equipment) as max_equi from equi_change_classification
                 )
-                select max(max_batch) from cte;
+                select max(max_equi) from cte;
                 """;
             cmd.CommandText = query;
-            if (cmd.ExecuteScalar() is long maxBatch)
+            if (cmd.ExecuteScalar() is string maxEqui)
             {
-                for (int i = 1; i <= maxBatch; i++)
-                {
-                    Console.WriteLine($"Index: {i}");
-                    var uploadTemplatePath = appSettings.EquiChangeTemplatePath;
-
-                    var dest = MakeOutputName(i);
-                    GenExcelUpload1(conn, uploadTemplatePath, dest, i);
-                }
+                var uploadTemplatePath = appSettings.EquiChangeTemplatePath;
+                var dest = MakeOutputName();
+                GenExcelUpload1(conn, uploadTemplatePath, dest);
             }
             else
             {
@@ -65,7 +60,7 @@ namespace SptUtils.GenExcelUpload.Base
 
         }
 
-        private static void GenExcelUpload1(SqliteConnection conn, string uploadTemplatePath, string dest, int batch)
+        private static void GenExcelUpload1(SqliteConnection conn, string uploadTemplatePath, string dest)
         {
             File.Copy(uploadTemplatePath, dest, true);
             
@@ -190,7 +185,6 @@ namespace SptUtils.GenExcelUpload.Base
                     t.operator,                 -- BS
                     t.delivery_date             -- BT          
                 FROM equi_change_equipment_data t
-                WHERE batch_number = {batch}
                 ORDER BY t.functional_loc;
                 """;
             ws = wb.Worksheets.Worksheet("EQ-Equipment Data");
@@ -285,7 +279,6 @@ namespace SptUtils.GenExcelUpload.Base
                     t.char_value, 
                     t.class_delete_ind
                 FROM equi_change_classification t
-                WHERE t.batch_number = {batch};
                 """;
             ws = wb.Worksheets.Worksheet("EQ-Classification");
             ws.Unprotect();

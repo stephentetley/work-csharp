@@ -24,30 +24,25 @@ namespace SptUtils.GenExcelUpload.Base
 
         public static void WriteEquiCreateUpload(SqliteConnection conn, AppSettings appSettings, string outputFolder, string? nameRoot)
         {
-            string MakeOutputName(int i){
+            string MakeOutputName(){
                 if (nameRoot is string root)
                 {
-                    var name1 = $"{root}_EQUI_CREATE_{i:D2}.xlsx";
+                    var name1 = $"{root}_EQUI_CREATE.xlsx";
                     return Path.Combine(outputFolder, name1);
                 }
                 else
                 {
-                    var name1 =  $"EQUI_CREATE_{i:D2}.xlsx";
+                    var name1 =  $"EQUI_CREATE.xlsx";
                     return Path.Combine(outputFolder, name1);
                 }
             };
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT max(batch_number) FROM equi_create_equipment_data;";
-            if (cmd.ExecuteScalar() is long maxBatch)
+            cmd.CommandText = "SELECT max(equipment) FROM equi_create_equipment_data;";
+            if (cmd.ExecuteScalar() is string maxEqui)
             {
-                for (int i = 1; i <= maxBatch; i++)
-                {
-                    Console.WriteLine($"Index: {i}");
-                    var uploadTemplatePath = appSettings.EquiCreateTemplatePath;
-
-                    var dest = MakeOutputName(i);
-                    GenExcelUpload1(conn, uploadTemplatePath, dest, i);
-                }
+                var uploadTemplatePath = appSettings.EquiCreateTemplatePath;
+                var dest = MakeOutputName();
+                GenExcelUpload1(conn, uploadTemplatePath, dest);
             } 
             else
             {
@@ -56,7 +51,7 @@ namespace SptUtils.GenExcelUpload.Base
 
         }
 
-        private static void GenExcelUpload1(SqliteConnection conn, string uploadTemplatePath, string dest, int batch)
+        private static void GenExcelUpload1(SqliteConnection conn, string uploadTemplatePath, string dest)
         {
             File.Copy(uploadTemplatePath, dest, true);
             
@@ -184,7 +179,6 @@ namespace SptUtils.GenExcelUpload.Base
                     t.operator,
                     t.delivery_date
                 FROM equi_create_equipment_data t
-                WHERE batch_number = {batch}
                 ORDER BY t.functional_loc;
                 """;
             ws = wb.Worksheets.Worksheet("EQ-Equipment Data");
@@ -280,7 +274,6 @@ namespace SptUtils.GenExcelUpload.Base
                     t.characteristics,
                     t.char_value
                 FROM equi_create_classification t
-                WHERE t.batch_number = {batch};
                 """;
             ws = wb.Worksheets.Worksheet("EQ-Classification");
             ws.Unprotect();

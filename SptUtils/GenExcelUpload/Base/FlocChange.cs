@@ -23,15 +23,15 @@ namespace SptUtils.GenExcelUpload.Base
     {
         public static void WriteFlocChangeUpload(SqliteConnection conn, AppSettings appSettings, string outputFolder, string? nameRoot)
         {
-            string MakeOutputName(int i){
+            string MakeOutputName(){
                 if (nameRoot is string root)
                 {
-                    var name1 = $"{root}_FLOC_CHANGE_{i:D2}.xlsx";
+                    var name1 = $"{root}_FLOC_CHANGE.xlsx";
                     return Path.Combine(outputFolder, name1);
                 }
                 else
                 {
-                    var name1 =  $"FLOC_CHANGE_{i:D2}.xlsx";
+                    var name1 =  $"FLOC_CHANGE.xlsx";
                     return Path.Combine(outputFolder, name1);
                 }
             };
@@ -39,30 +39,26 @@ namespace SptUtils.GenExcelUpload.Base
             var query = 
                 """
                 with cte as (
-                    select max(batch_number) as max_batch from floc_change_functional_location
+                    select max(functional_location) as max_floc from floc_change_functional_location
                     union
-                    select max(batch_number) as max_batch from floc_change_classification
+                    select max(functional_location) as max_floc from floc_change_classification
                 )
-                select max(max_batch) from cte;
+                select max(max_floc) from cte;
                 """;
             cmd.CommandText = query;
-            if (cmd.ExecuteScalar() is long maxBatch)
+            if (cmd.ExecuteScalar() is string maxFloc)
             {
-                for (int i = 1; i <= maxBatch; i++)
-                {
-                    Console.WriteLine($"Index: {i}");
-                    var uploadTemplatePath = appSettings.FlocChangeTemplatePath;
+                var uploadTemplatePath = appSettings.FlocChangeTemplatePath;
 
-                    var dest = MakeOutputName(i);
-                    GenExcelUpload1(conn, uploadTemplatePath, dest, i);
-                }
+                var dest = MakeOutputName();
+                GenExcelUpload1(conn, uploadTemplatePath, dest);
             }
             else
             {
                 Console.WriteLine($"FlocChange - empty");
             }
         }
-        private static void GenExcelUpload1(SqliteConnection conn, string uploadTemplatePath, string dest, int batch)
+        private static void GenExcelUpload1(SqliteConnection conn, string uploadTemplatePath, string dest)
         {
             File.Copy(uploadTemplatePath, dest, true);
             
@@ -178,7 +174,6 @@ namespace SptUtils.GenExcelUpload.Base
                     t.sales_office,
                     t.sales_group
                 FROM floc_change_functional_location t
-                WHERE batch_number = {batch}
                 ORDER BY t.functional_location;
                 """;
             ws = wb.Worksheets.Worksheet("FLOC-Functional Location");
@@ -264,7 +259,6 @@ namespace SptUtils.GenExcelUpload.Base
                     t.char_value,
                     t.class_delete_ind
                 FROM floc_change_classification t
-                WHERE t.batch_number = {batch};
                 """;
             ws = wb.Worksheets.Worksheet("FLOC-Classification");
             ws.Unprotect();
